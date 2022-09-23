@@ -1,6 +1,14 @@
 # rundown
 The rundown of (a) scenarios provoking issues in spatial causal inference, (b) existing spatial causal models, and (c) the matrix of applications of members of (b) on members of (a).
 
+Throughout, we assume that there is **only one** observation per region (unlike Reich et al. 2021).
+
+## TODO
+- Make simulations for all the data scenarios
+- Sketch out package structure
+- Implement all the methods from Reich et al. 2021
+- Implement some nonspatial causal models
+
 ## Data scenarios
 
 ### Confounding
