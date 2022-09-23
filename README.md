@@ -18,10 +18,21 @@ First one definitely exists. Do the others exist too?
 Combinations of spatial autocorrelation and treatment interference.
 
 ## Existing spatial causal models
-- 
+
+### Reich et al. 2021 methods to mitigate omitted spatially autocorrelated variables
+- case-control matching (e.g. Jarner et al. 2002)
+- neighborhood adjustments by spatial smoothing (Schnell and Papadogeorgou 2019)
+- propensity score methods (Davis et al. 2019)
+
+They review these methods and do a simulation study to compare their precision for estimating a causal effect in the presence of a missing spatial confounder.
+
+### Reich et al. 2021 methods to deal with interference (spillover)
+- partial (Zigler et al. 2012)
+- network (Tchetgen et al. 2017)
+- ways to combine mechanistic and spatial statistical models to anchor the analysis to scientific theory
 
 ## Existing nonspatial causal models
-
 (for comparison to the spatial ones)
-
--
+- DAGs and Pearl's algorithm for eliminating confounders (maybe not?)
+- Causal ML (using BART/BCF, neural nets like EconML, representation learning)
+- ...
