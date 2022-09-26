@@ -50,19 +50,26 @@ class Simulator:
 class LinearSimulator(Simulator):
     """
     Simulates data coming from a confounded linear model. By default, this
-    model is nonspatial. Subclasses add spatial effects.
+    model is nonspatial. The auto class attribute may be set to determine 
+    which variables are spatially autocorrelated.
     """
 
-    def __init__(self, N, D):
+    def __init__(self, N, D, auto=None, W=None):
         super().__init__(N, D)
+        self.autoX = ("X" or "x" in auto)
+        self.autoY = ("Y" or "y" in auto)
+        self.autoZ = ("Z" or "z" in auto)
 
-    def _create_Y(self, X, Z, beta=None, tau=None, eps_sd=0.1):
+        if auto is not None and W is None:
+            raise ValueError("Need spatial weights matrix to generate " +
+                             "autocorrelated data")
+        self.W = W
+
+    def _create_Y(self, X, Z, beta=None, tau=3, rho=1.2, eps_sd=0.1, sp_sd=0.1):
         """
         Generates linear outcome from nonspatial confounders and treatment.
         Y is generated linearly by adding X times the given confounder effects
         to Z times the treatment effect and adding an error term.
-
-        Any kwargs get passed to _create_data, which should be subclassed.
 
         Parameters
         ----------
@@ -72,18 +79,29 @@ class LinearSimulator(Simulator):
         tau        : treatment effect
                      default: 3
 
+        rho        : spatial effect
+                     if not autocorrelated: n/a 
+                     if autocorrelated: default 1.2
+
+        eps_sd     : SD of spatial error term
+                     if not autocorrelated: n/a
+                     if autocorrelated: default 0.1
+
         Returns
         -------
         Y          : outcomes
         """
 
         if beta is None:
-            beta = 2*np.ones((self.D, 1))
-        if tau is None:
-            tau = 3
+            beta = 2 * np.ones((self.D, 1))
 
         eps_y = np.random.normal(loc=0, scale=eps_sd, size=(self.N, 1))
-        Y = np.dot(X, beta) + tau * Z + eps_y
+
+        if not self.autoY:
+            sp_eps = np.zeros((self.N, 1))
+        else:
+            sp_eps = np.random.normal(loc=0, scale=sp_sd, size=(self.N, 1))
+        Y = np.dot(X, beta) + tau * Z + np.dot(np.linalg.pinv(np.eye(self.N) - rho*self.W), sp_eps) + eps_y
         return Y
 
     def _create_X(self, x_sd=1):
@@ -143,49 +161,6 @@ class LinearSimulator(Simulator):
         # Treatment assigned at random
         Z = np.random.binomial(1, treat_probs, size=(self.N, 1))
         return Z
-
-
-class LinearAutoTreatment(LinearSimulator):
-    def __init__(self, N, D):
-        super().__init__(N, D)
-
-    def _create_data(self, rho):
-        """
-        Parameters
-        ----------
-        rho       : level of spatial autocorrelation
-        """
-
-        pass
-
-class LinearAutoOutcome(LinearSimulator):
-    def __init__(self, N, D):
-        super().__init__(N, D)
-
-    # this class needs a simulate method to add spatial autocorrelation to Y
-
-    def _create_data(self, rho):
-        """
-        Parameters
-        ----------
-        rho       : level of spatial autocorrelation
-        """
-
-        pass
-
-
-class LinearAutoConfounder(LinearSimulator):
-    def __init__(self, N, D):
-        super().__init__(N, D)
-
-    def _create_data(self, rho):
-        """
-        Parameters
-        ----------
-        rho       : level of spatial autocorrelation
-        """
-
-        pass
 
 
 class NonlinearSimulator(Simulator):
