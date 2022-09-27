@@ -1,4 +1,5 @@
 import numpy as np
+import libpysal
 
 """
 Sets up simulation classes to be reused in experiments.
@@ -63,6 +64,9 @@ class LinearSimulator(Simulator):
         if len(auto) > 0 and W is None:
             raise ValueError("Need spatial weights matrix to generate " +
                              "autocorrelated data")
+
+        if isinstance(W, libpysal.weights.weights.W):
+            W = W.full()[0]
         self.W = W
 
     def _create_Y(self, X, Z, beta=None, tau=3, rho=1.2, eps_sd=0.1, sp_sd=0.1):
@@ -165,11 +169,18 @@ class LinearSimulator(Simulator):
         # If an observation's covariate is greater than the mean, add to the
         # probability of treatment.
         # WARNING this doesn't feel right
-        treat_probs = treat_prob*np.ones((self.N, 1)) \
-                      + confound*X[X[:, var] > means]
+        mask = np.zeros((self.N, 1))
+        for i in range(mask.shape[0]):
+            mask[i] = X[i, var[i]] > means[var[i]]
+
+        treat_probs = treat_prob + confound*mask
 
         # Treatment assigned at random
         Z = np.random.binomial(1, treat_probs, size=(self.N, 1))
+
+        if self.autoZ:
+            slag = np.dot(self.W, Z)
+            Z = np.where(slag > 2, 1, 0)  # autocorrelate
         return Z
 
 
