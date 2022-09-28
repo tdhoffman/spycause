@@ -187,13 +187,29 @@ class LinearSimulator(Simulator):
 
 
 class NonlinearSimulator(Simulator):
-    def __init__(self, N, D):
+    def __init__(self, N, D, auto=[], W=None):
         super().__init__(N, D)
+        self.autoX = ("X" in auto or "x" in auto)
+        self.autoY = ("Y" in auto or "y" in auto)
+        self.autoZ = ("Z" in auto or "z" in auto)
 
-    def simulate(self):
+        if len(auto) > 0 and W is None:
+            raise ValueError("Need spatial weights matrix to generate " +
+                             "autocorrelated data")
+
+        if isinstance(W, libpysal.weights.weights.W):
+            W = W.full()[0]
+        else:
+            W = np.zeros((N, N))
+        self.W = W
+
+    def _create_X(self):
         pass
 
-    def _create_data(self):
+    def _create_Y(self):
+        pass
+
+    def _create_Z(self):
         pass
 
 

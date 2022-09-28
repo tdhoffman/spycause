@@ -46,44 +46,37 @@ They review these methods and do a simulation study to compare their precision f
 - ...
 
 
-## Data-model Matrix
+# Data-model matrix
 
-| Number |                              Scenario                              |    Implemented?    | |
-| :----: | :----------------------------------------------------------------- | :----------------: |-|
-|    1   | nonspatial, no confounding, linear relationship                    | :heavy_check_mark: | |
-|    2   | nonspatial, no confounding, nonlinear relationship                 |                    | |
-|    3   | nonspatial, confounding, linear relationship                       | :heavy_check_mark: | |
-|    4   | nonspatial, confounding, nonlinear relationship                    |                    | |
-|    5   | auto in Y, no confounding, linear relationship                     | :heavy_check_mark: | |
-|    6   | auto in Y, no confounding, nonlinear relationship                  |                    | |
-|    7   | auto in Y, confounding, linear relationship                        | :heavy_check_mark: | |
-|    8   | auto in Y, confounding, nonlinear relationship                     |                    | |
-|    9   | auto in X, no confounding, linear relationship                     | :heavy_check_mark: | |
-|   10   | auto in X, no confounding, nonlinear relationship                  |                    | |
-|   11   | auto in X, confounding, linear relationship                        | :heavy_check_mark: | |
-|   12   | auto in X, confounding, nonlinear relationship                     |                    | |
-|   13   | auto in Z, no confounding, linear relationship                     | :heavy_check_mark: | |
-|   14   | auto in Z, no confounding, nonlinear relationship                  |                    | |
-|   15   | auto in Z, confounding, linear relationship                        | :heavy_check_mark: | |
-|   16   | auto in Z, confounding, nonlinear relationship                     |                    | |
-|   17   | interference, no confounding, linear relationship                  |                    | |
-|   18   | interference, no confounding, nonlinear relationship               |                    | |
-|   19   | interference, confounding, linear relationship                     |                    | |
-|   20   | interference, confounding, nonlinear relationship                  |                    | |
-|   21   | interference, auto in Y, no confounding, linear relationship       |                    | |
-|   22   | interference, auto in Y, no confounding, nonlinear relationship    |                    | |
-|   23   | interference, auto in Y, confounding, linear relationship          |                    | |
-|   24   | interference, auto in Y, confounding, nonlinear relationship       |                    | |
-|   25   | interference, auto in X, no confounding, linear relationship       |                    | |
-|   26   | interference, auto in X, no confounding, nonlinear relationship    |                    | |
-|   27   | interference, auto in X, confounding, linear relationship          |                    | |
-|   28   | interference, auto in X, confounding, nonlinear relationship       |                    | |
-|   29   | interference, auto in Z, no confounding, linear relationship       |                    | |
-|   30   | interference, auto in Z, no confounding, nonlinear relationship    |                    | |
-|   31   | interference, auto in Z, confounding, linear relationship          |                    | |
-|   32   | interference, auto in Z, confounding, nonlinear relationship       |                    | |
+| Number | Linear | Spatial confounding | Interference |    Implemented?    | |
+| :----: | :----: | :------------------ | :----------- | :----------------: |-|
+|    1   |    T   | none                | none         |                    | |
+|    2   |    F   | none                | none         |                    | |
+|    3   |    T   | W                   | none         |                    | |
+|    4   |    F   | W                   | none         |                    | |
+|    5   |    T   | none                | partial      |                    | |
+|    6   |    F   | none                | partial      |                    | |
+|    7   |    T   | none                | general      |                    | |
+|    8   |    F   | none                | general      |                    | |
+|    9   |    T   | none                | network      |                    | |
+|   10   |    F   | none                | network      |                    | |
+|   11   |    T   | W                   | partial      |                    | |
+|   12   |    F   | W                   | partial      |                    | |
+|   13   |    T   | W                   | general      |                    | |
+|   14   |    F   | W                   | general      |                    | |
+|   15   |    T   | W                   | network      |                    | |
+|   16   |    F   | W                   | network      |                    | |
 
 **Notes:** 
-- "auto in S" is shorthand for indicating that S is spatially autocorrelated
-- "confounding" means Z is a function of X
-- "interference" indicates that treatment at one location affects outcomes at another
+- it's assumed that there is nonspatial confounding present in all the above. Estimation of these models
+  without confounding is a special case and is less interesting.
+- partial interference is with respect to a choice of regions (spatial clusters) that will need to be
+  selected. It may make sense to choose a few regionalizations to use.
+- spatial confounding is with respect to a choice of weights, or ways to represent exactly how the 
+  neighboring confounding relationships work (notated by "W" here). It may make sense to choose a 
+  few different weights to represent this.
+- network interference is also with respect to a choice of weights (specification of an adjacency matrix
+  for the network). Again, it may make sense to choose a few different weights for this.
+
+**Currently implemented** are autocorrelated X, Y, and Z variable. I need to implement confounding,
+which is different.
