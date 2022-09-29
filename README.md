@@ -128,4 +128,6 @@ might want. That paradigm might look like:
   - generate `Y = f_y(X, Z, *args)`
 
 This is akin to what I initially wrote, but more concrete and with a few key differences in light of the
-scenario list and assumptions.
+scenario list and assumptions. Also -- and this would probably best be worked out during implementation --
+the `f_*` functions should be fleshed out a bit more. Do they just specify the relationships between variables?
+Do they also specify the nature of dependencies? How much functionality goes into them?
