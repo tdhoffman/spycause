@@ -117,6 +117,7 @@ might want. That paradigm might look like:
   - (spatially autocorrelated?)
 - method `f_z(X, *args)`:
   - generate Z linearly from parameters and X
+  - if `sp_confound` is true: have X affect neighboring Z
 - method `f_y(X, Z, *args)`:
   - generate Y linearly from parameters, X, and Z
   - if `sp_confound` is true: have X affect neighboring Y
