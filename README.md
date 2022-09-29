@@ -56,27 +56,76 @@ They review these methods and do a simulation study to compare their precision f
 |    4   |    F   | W                   | none         |                    | |
 |    5   |    T   | none                | partial      |                    | |
 |    6   |    F   | none                | partial      |                    | |
-|    7   |    T   | none                | general      |                    | |
-|    8   |    F   | none                | general      |                    | |
-|    9   |    T   | none                | network      |                    | |
-|   10   |    F   | none                | network      |                    | |
-|   11   |    T   | W                   | partial      |                    | |
-|   12   |    F   | W                   | partial      |                    | |
-|   13   |    T   | W                   | general      |                    | |
-|   14   |    F   | W                   | general      |                    | |
+|    7   |    T   | W                   | partial      |                    | |
+|    8   |    F   | W                   | partial      |                    | |
+|    9   |    T   | none                | general      |                    | |
+|   10   |    F   | none                | general      |                    | |
+|   11   |    T   | W                   | general      |                    | |
+|   12   |    F   | W                   | general      |                    | |
+|   13   |    T   | none                | network      |                    | |
+|   14   |    F   | none                | network      |                    | |
 |   15   |    T   | W                   | network      |                    | |
 |   16   |    F   | W                   | network      |                    | |
 
 **Notes:** 
-- it's assumed that there is nonspatial confounding present in all the above. Estimation of these models
+- It's assumed that there is nonspatial confounding present in all the above. Estimation of these models
   without confounding is a special case and is less interesting.
-- partial interference is with respect to a choice of regions (spatial clusters) that will need to be
+- Partial interference is with respect to a choice of regions (spatial clusters) that will need to be
   selected. It may make sense to choose a few regionalizations to use.
-- spatial confounding is with respect to a choice of weights, or ways to represent exactly how the 
+- Spatial confounding is with respect to a choice of weights, or ways to represent exactly how the 
   neighboring confounding relationships work (notated by "W" here). It may make sense to choose a 
   few different weights to represent this.
-- network interference is also with respect to a choice of weights (specification of an adjacency matrix
+- Network interference is also with respect to a choice of weights (specification of an adjacency matrix
   for the network). Again, it may make sense to choose a few different weights for this.
+- We'll do everything on lattices for simplicity.
+- We'll assume all interference and confounding are linear for simplicity. That is, the effects of 
+  neighbors are always additive and hence can be expressed using a weights matrix.
 
 **Currently implemented** are autocorrelated X, Y, and Z variable. I need to implement confounding,
-which is different.
+which is different, and interference. The current setup also has several classes which inherit from each other.
+I think it may be better to create one `Simulator` class and have it contain all the functionality. 
+By assuming confounding and interference are linear, we can always express them with a matrix which
+makes implementation much simpler. Basically, the `Simulator` class will look like the following:
+
+**`Simulator`**
+- `__init__()`:
+  - contains required parameters
+  - `linear` (default `True`)
+  - `sp_confound` (default `False`)
+  - `interference` (default `None`)
+- method `simulate()`:
+  - generate X (spatially autocorrelated?)
+  - generate Z as a function of X
+  - generate Y as a function of X and Z
+  - if `linear` is false: modify functional forms
+  - if `sp_confound` is true: have X affect neighboring Y
+  - for each non-`None` `interference` option (`"partial"`, `"general"`, `"network"`), change which Z 
+    affect Y.
+    
+Actually, it may be preferable to modify this slightly. Make `Simulator` by default linear, but encode
+these functional forms as separate class methods (e.g. `f_x()` generates X). Then, subclasses can override
+those functions to offer alternative model forms, as there are a ton of potential nonlinear forms that we
+might want. That paradigm might look like:
+
+**`Simulator`**
+- `__init__()`:
+  - contains required parameters
+  - `sp_confound` (default `False`)
+  - `interference` (default `None`)
+- method `f_x(*args)`:
+  - generate X from parameters
+  - (spatially autocorrelated?)
+- method `f_z(X, *args)`:
+  - generate Z linearly from parameters and X
+- method `f_y(X, Z, *args)`:
+  - generate Y linearly from parameters, X, and Z
+  - if `sp_confound` is true: have X affect neighboring Y
+  - for each non-`None` `interference` option (`"partial"`, `"general"`, `"network"`), change which Z 
+    affect Y.
+- method `simulate()`:
+  - generate `X = f_x(*args)`
+  - generate `Z = f_z(X, *args)`
+  - generate `Y = f_y(X, Z, *args)`
+
+This is akin to what I initially wrote, but more concrete and with a few key differences in light of the
+scenario list and assumptions.
