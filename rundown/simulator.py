@@ -96,7 +96,7 @@ class Simulator:
             X[:, d] = np.random.normal(loc=means[d], scale=x_sd[d], size=(self.N,))
             X[:, d] = np.dot(np.linalg.pinv(np.eye(self.N) - x_sp*W), X[:, d])
 
-        Z = self._create_Z(X, **kwargs)
+        Z = np.random.binomial(1, self._create_Z(X, **kwargs), size=(self.N, 1))
         Y = self._create_Y(X, Z, **kwargs)
         return X, Y, Z
 
@@ -112,4 +112,8 @@ class Simulator:
         Generate Z based on parameters and confounders X.
         """
 
-        raise NotImplementedError("Subclasses must define this")
+        xvals = X.mean(1)/X.mean(1).max()
+        if self.sp_confound is not None:
+            xvals += self.sp_confound @ xvals
+
+        return 0.25 + xvals/2
