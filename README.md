@@ -48,24 +48,24 @@ They review these methods and do a simulation study to compare their precision f
 
 # Data-model matrix
 
-| Number | Linear | Spatial confounding | Interference |    Implemented?    | Tested? |
-| :----: | :----: | :------------------ | :----------- | :----------------: | :-----: |
-|    1   |    T   | none                | none         | :heavy_check_mark: |         |
-|    2   |    F   | none                | none         |                    |         |
-|    3   |    T   | W                   | none         | :heavy_check_mark: |         |
-|    4   |    F   | W                   | none         |                    |         |
-|    5   |    T   | none                | partial      | :heavy_check_mark: |         |
-|    6   |    F   | none                | partial      |                    |         |
-|    7   |    T   | W                   | partial      | :heavy_check_mark: |         |
-|    8   |    F   | W                   | partial      |                    |         |
-|    9   |    T   | none                | general      | :heavy_check_mark: |         |
-|   10   |    F   | none                | general      |                    |         |
-|   11   |    T   | W                   | general      | :heavy_check_mark: |         |
-|   12   |    F   | W                   | general      |                    |         |
-|   13   |    T   | none                | network      | :heavy_check_mark: |         |
-|   14   |    F   | none                | network      |                    |         |
-|   15   |    T   | W                   | network      | :heavy_check_mark: |         |
-|   16   |    F   | W                   | network      |                    |         |
+| Number | Linear | Spatial confounding | Interference |    Implemented?    |       Tested?      |
+| :----: | :----: | :------------------ | :----------- | :----------------: | :----------------: |
+|    1   |    T   | none                | none         | :heavy_check_mark: | :heavy_check_mark: |
+|    2   |    F   | none                | none         |                    |                    |
+|    3   |    T   | W                   | none         | :heavy_check_mark: |                    |
+|    4   |    F   | W                   | none         |                    |                    |
+|    5   |    T   | none                | partial      | :heavy_check_mark: |                    |
+|    6   |    F   | none                | partial      |                    |                    |
+|    7   |    T   | W                   | partial      | :heavy_check_mark: |                    |
+|    8   |    F   | W                   | partial      |                    |                    |
+|    9   |    T   | none                | general      | :heavy_check_mark: |                    |
+|   10   |    F   | none                | general      |                    |                    |
+|   11   |    T   | W                   | general      | :heavy_check_mark: |                    |
+|   12   |    F   | W                   | general      |                    |                    |
+|   13   |    T   | none                | network      | :heavy_check_mark: |                    |
+|   14   |    F   | none                | network      |                    |                    |
+|   15   |    T   | W                   | network      | :heavy_check_mark: |                    |
+|   16   |    F   | W                   | network      |                    |                    |
 
 **Notes:** 
 - It's assumed that there is nonspatial confounding present in all the above. Estimation of these models
@@ -132,3 +132,14 @@ This is akin to what I initially wrote, but more concrete and with a few key dif
 scenario list and assumptions. Also -- and this would probably best be worked out during implementation --
 the `f_*` functions should be fleshed out a bit more. Do they just specify the relationships between variables?
 Do they also specify the nature of dependencies? How much functionality goes into them?
+
+
+## Actual `Simulator` implementation
+Implemented the `Simulator` class successfully and deleted `old_simulator.py`. Currently in the process
+of testing the various options in it. I realized that `f_x(*args)` is not necessary as X can simply be
+generated as some spatially autocorrelated data by default. Moreover, Z is constrained to be Binomial(1, p)
+where p is a vector of probabilities that are a linear function of X and potentially location. This way,
+subclasses of this default `Simulator` will be able to override the `f_z` function and easily change only
+the linearity of Z rather than other aspects. Finally, to be coherent with functional causal models, 
+Y is fully generated in `_create_Y`. The function can be overriden in any number of ways by future
+subclasses.
