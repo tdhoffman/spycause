@@ -4,7 +4,8 @@ The rundown of (a) scenarios provoking issues in spatial causal inference, (b) e
 Throughout, we assume that there is **only one** observation per region (unlike Reich et al. 2021).
 
 ## TODO
-- Make simulations for all the data scenarios
+- ~~Make simulations for all the data scenarios~~
+- Add unit tests for `Simulator` classes
 - Sketch out package structure
 - Implement all the methods from Reich et al. 2021
 - Implement some nonspatial causal models
@@ -143,3 +144,6 @@ subclasses of this default `Simulator` will be able to override the `f_z` functi
 the linearity of Z rather than other aspects. Finally, to be coherent with functional causal models, 
 Y is fully generated in `_create_Y`. The function can be overriden in any number of ways by future
 subclasses.
+
+`FriedmanSimulator` is also implemented. The class exploits the modularity of the base `Simulator`
+and only implements a nonlinear functional form for Y.
