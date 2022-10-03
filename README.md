@@ -52,9 +52,9 @@ They review these methods and do a simulation study to compare their precision f
 | :----: | :----: | :------------------ | :----------- | :----------------: | :----------------: |
 |    1   |    T   | none                | none         | :heavy_check_mark: | :heavy_check_mark: |
 |    2   |    F   | none                | none         |                    |                    |
-|    3   |    T   | W                   | none         | :heavy_check_mark: |                    |
+|    3   |    T   | W                   | none         | :heavy_check_mark: | :heavy_check_mark: |
 |    4   |    F   | W                   | none         |                    |                    |
-|    5   |    T   | none                | partial      | :heavy_check_mark: |                    |
+|    5   |    T   | none                | partial      | :heavy_check_mark: | :heavy_check_mark: |
 |    6   |    F   | none                | partial      |                    |                    |
 |    7   |    T   | W                   | partial      | :heavy_check_mark: |                    |
 |    8   |    F   | W                   | partial      |                    |                    |
@@ -62,9 +62,9 @@ They review these methods and do a simulation study to compare their precision f
 |   10   |    F   | none                | general      |                    |                    |
 |   11   |    T   | W                   | general      | :heavy_check_mark: |                    |
 |   12   |    F   | W                   | general      |                    |                    |
-|   13   |    T   | none                | network      | :heavy_check_mark: |                    |
+|   13   |    T   | none                | network      | :heavy_check_mark: | :heavy_check_mark: |
 |   14   |    F   | none                | network      |                    |                    |
-|   15   |    T   | W                   | network      | :heavy_check_mark: |                    |
+|   15   |    T   | W                   | network      | :heavy_check_mark: | :heavy_check_mark: |
 |   16   |    F   | W                   | network      |                    |                    |
 
 **Notes:** 

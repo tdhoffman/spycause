@@ -45,11 +45,11 @@ class Simulator:
             interference = interference.lower()
 
         if interference is not None and interference != "none":
-            if type(interference) == str and interference == "general":
+            if isinstance(interference, str) and interference == "general":
                 interference = np.ones((self.N, self.N))
-            elif type(interference) == str and interference == "network":
+            elif isinstance(interference, str) and interference == "network":
                 interference = weights.lat2W(Nlat, Nlat, rook=False).full()[0]
-            elif type(interference) == int or (type(interference) == str and interference == "partial"):
+            elif isinstance(interference, int) or (isinstance(interference, str) and interference == "partial"):
                 W = weights.lat2W(Nlat, Nlat, rook=False)
 
                 if type(interference) == int:
@@ -68,6 +68,10 @@ class Simulator:
                 adjlist = pd.DataFrame(columns=["source", "dest"], data=np.dstack((source, dest)))
 
                 interference = weights.W.from_adjlist(adjlist)
+            elif isinstance(interference, weights.W):
+                interference = interference.full()[0]
+            elif isinstance(interference, np.ndarray):
+                pass
             else:
                 raise ValueError("Unknown kind of interference")
 
@@ -130,6 +134,9 @@ class Simulator:
 
         Z = np.random.binomial(1, self._create_Z(X, zconf, sp_zconf, **kwargs)).reshape(-1, 1)
         Y = self._create_Y(X, Z, treat, yconf, sp_yconf, interf, eps_sd, **kwargs)
+
+        # Compute treated percentage
+        self.treated_pct = (Z == 1).sum() / self.N
         return X, Y, Z
 
     def _create_Y(self, X, Z, treat, yconf, sp_yconf, interf, eps_sd, **kwargs):
@@ -138,6 +145,12 @@ class Simulator:
         """
 
         eps_y = np.random.normal(loc=0, scale=eps_sd, size=(self.N, 1))
+
+        if np.isscalar(yconf):
+            yconf *= np.ones((self.D, 1))
+        if np.isscalar(sp_yconf):
+            sp_yconf *= np.ones((self.D, 1))
+
         Y = np.dot(X, yconf) + treat * Z + eps_y
 
         if self.sp_confound is not None:
@@ -160,14 +173,49 @@ class Simulator:
 
 
 if __name__ == "__main__":
+    ## Imports
     import numpy as np
     import matplotlib.pyplot as plt
     from rundown import Simulator
+    from libpysal import weights
 
     Nlat = 30
     D = 2
+
+    ## Nonspatial linear simulation (scenario 1)
     sim = Simulator(Nlat, D)
-    X, Y, Z = sim.simulate(x_sp=0.9)
+    X, Y, Z = sim.simulate()
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Spatially confounded linear simulation (scenario 3)
+    sp_confound = weights.lat2W(Nlat, Nlat, rook=True).full()[0]
+    sim = Simulator(Nlat, D, sp_confound=sp_confound)
+    X, Y, Z = sim.simulate()
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Linear network spatial interference (scenario 13)
+    sim = Simulator(Nlat, D, interference="network")
+    X, Y, Z = sim.simulate()
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Spatially confounded linear network spatial interference (scenario 15)
+    sim = Simulator(Nlat, D, sp_confound=sp_confound, interference="network")
+    X, Y, Z = sim.simulate()
 
     _, axes = plt.subplots(ncols=3)
     axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
