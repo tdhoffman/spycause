@@ -59,13 +59,13 @@ They review these methods and do a simulation study to compare their precision f
 |    7   |    T   | W                   | partial      | :heavy_check_mark: | :heavy_check_mark: |
 |    8   |    F   | W                   | partial      | :heavy_check_mark: | :heavy_check_mark: |
 |    9   |    T   | none                | general      | :heavy_check_mark: | :heavy_check_mark: |
-|   10   |    F   | none                | general      | :heavy_check_mark: |                    |
+|   10   |    F   | none                | general      | :heavy_check_mark: | :heavy_check_mark: |
 |   11   |    T   | W                   | general      | :heavy_check_mark: | :heavy_check_mark: |
-|   12   |    F   | W                   | general      | :heavy_check_mark: |                    |
+|   12   |    F   | W                   | general      | :heavy_check_mark: | :heavy_check_mark: |
 |   13   |    T   | none                | network      | :heavy_check_mark: | :heavy_check_mark: |
-|   14   |    F   | none                | network      | :heavy_check_mark: |                    |
+|   14   |    F   | none                | network      | :heavy_check_mark: | :heavy_check_mark: |
 |   15   |    T   | W                   | network      | :heavy_check_mark: | :heavy_check_mark: |
-|   16   |    F   | W                   | network      | :heavy_check_mark: |                    |
+|   16   |    F   | W                   | network      | :heavy_check_mark: | :heavy_check_mark: |
 
 **Notes:** 
 - It's assumed that there is nonspatial confounding present in all the above. Estimation of these models

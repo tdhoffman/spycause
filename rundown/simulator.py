@@ -305,8 +305,28 @@ if __name__ == "__main__":
     axes[2].imshow(Z.reshape(Nlat, Nlat))
     plt.show()
 
+    ## Nonlinear general spatial interference (scenario 10)
+    sim = FriedmanSimulator(Nlat, D, interference="general")
+    X, Y, Z = sim.simulate(treat=0.5)
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
     ## Spatially confounded linear general spatial interference (scenario 11)
     sim = Simulator(Nlat, D, sp_confound=sp_confound, interference="general")
+    X, Y, Z = sim.simulate(treat=0.2)
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Spatially confounded nonlinear general spatial interference (scenario 12)
+    sim = FriedmanSimulator(Nlat, D, sp_confound=sp_confound, interference="general")
     X, Y, Z = sim.simulate(treat=0.2)
 
     _, axes = plt.subplots(ncols=3)
@@ -325,8 +345,28 @@ if __name__ == "__main__":
     axes[2].imshow(Z.reshape(Nlat, Nlat))
     plt.show()
 
+    ## Nonlinear network spatial interference (scenario 14)
+    sim = FriedmanSimulator(Nlat, D, interference="network")
+    X, Y, Z = sim.simulate()
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
     ## Spatially confounded linear network spatial interference (scenario 15)
     sim = Simulator(Nlat, D, sp_confound=sp_confound, interference="network")
+    X, Y, Z = sim.simulate()
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Spatially confounded nonlinear network spatial interference (scenario 16)
+    sim = FriedmanSimulator(Nlat, D, sp_confound=sp_confound, interference="network")
     X, Y, Z = sim.simulate()
 
     _, axes = plt.subplots(ncols=3)
