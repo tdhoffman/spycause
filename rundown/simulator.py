@@ -182,6 +182,9 @@ class FriedmanSimulator(Simulator):
         eps_y = np.random.normal(loc=0, scale=eps_sd, size=(self.N, 1))
         Y = 10*np.sin(np.pi*X[:, [0]]*X[:, [1]]) + 20*(X[:, [2]] - 0.5)**2 + 10*X[:, [3]] + treat*Z + eps_y
 
+        if np.isscalar(sp_yconf):
+            sp_yconf *= np.ones((self.D, 1))
+
         if self.sp_confound is not None:
             Y += np.dot(np.dot(self.sp_confound, X), sp_yconf)
 
@@ -231,6 +234,16 @@ if __name__ == "__main__":
     axes[2].imshow(Z.reshape(Nlat, Nlat))
     plt.show()
 
+    ## Spatially confounded nonlinear simulation (scenario 4)
+    sim = FriedmanSimulator(Nlat, D, sp_confound=sp_confound)
+    X, Y, Z = sim.simulate()
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
     ## Linear partial spatial interference (scenario 5)
     data = np.vstack((np.hstack((np.ones((Nlat//2, Nlat//2)), 2*np.ones((Nlat//2, Nlat//2)))),
                       np.hstack((3*np.ones((Nlat//2, Nlat//2)), 4*np.ones((Nlat//2, Nlat//2))))))
@@ -252,9 +265,29 @@ if __name__ == "__main__":
     axes[2].imshow(Z.reshape(Nlat, Nlat))
     plt.show()
 
+    ## Nonlinear partial spatial interference simulation (scenario 6)
+    sim = FriedmanSimulator(Nlat, D, interference=interference)
+    X, Y, Z = sim.simulate()
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
     ## Spatially confounded partial spatial interference (scenario 7)
     sim = Simulator(Nlat, D, sp_confound=sp_confound, interference=interference)
     X, Y, Z = sim.simulate(treat=0.2)
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Nonlinear spatially confounded partial spatial interference simulation (scenario 8)
+    sim = FriedmanSimulator(Nlat, D, sp_confound=sp_confound, interference=interference)
+    X, Y, Z = sim.simulate()
 
     _, axes = plt.subplots(ncols=3)
     axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
