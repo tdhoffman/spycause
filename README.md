@@ -51,21 +51,21 @@ They review these methods and do a simulation study to compare their precision f
 | Number | Linear | Spatial confounding | Interference |    Implemented?    |       Tested?      |
 | :----: | :----: | :------------------ | :----------- | :----------------: | :----------------: |
 |    1   |    T   | none                | none         | :heavy_check_mark: | :heavy_check_mark: |
-|    2   |    F   | none                | none         |                    |                    |
+|    2   |    F   | none                | none         | :heavy_check_mark: | :heavy_check_mark: |
 |    3   |    T   | W                   | none         | :heavy_check_mark: | :heavy_check_mark: |
-|    4   |    F   | W                   | none         |                    |                    |
+|    4   |    F   | W                   | none         | :heavy_check_mark: |                    |
 |    5   |    T   | none                | partial      | :heavy_check_mark: | :heavy_check_mark: |
-|    6   |    F   | none                | partial      |                    |                    |
+|    6   |    F   | none                | partial      | :heavy_check_mark: |                    |
 |    7   |    T   | W                   | partial      | :heavy_check_mark: | :heavy_check_mark: |
-|    8   |    F   | W                   | partial      |                    |                    |
+|    8   |    F   | W                   | partial      | :heavy_check_mark: |                    |
 |    9   |    T   | none                | general      | :heavy_check_mark: | :heavy_check_mark: |
-|   10   |    F   | none                | general      |                    |                    |
+|   10   |    F   | none                | general      | :heavy_check_mark: |                    |
 |   11   |    T   | W                   | general      | :heavy_check_mark: | :heavy_check_mark: |
-|   12   |    F   | W                   | general      |                    |                    |
+|   12   |    F   | W                   | general      | :heavy_check_mark: |                    |
 |   13   |    T   | none                | network      | :heavy_check_mark: | :heavy_check_mark: |
-|   14   |    F   | none                | network      |                    |                    |
+|   14   |    F   | none                | network      | :heavy_check_mark: |                    |
 |   15   |    T   | W                   | network      | :heavy_check_mark: | :heavy_check_mark: |
-|   16   |    F   | W                   | network      |                    |                    |
+|   16   |    F   | W                   | network      | :heavy_check_mark: |                    |
 
 **Notes:** 
 - It's assumed that there is nonspatial confounding present in all the above. Estimation of these models

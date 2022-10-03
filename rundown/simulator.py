@@ -172,11 +172,28 @@ class Simulator:
         return np.clip(0.25 + xvals * zconf, 0, 1)
 
 
+class FriedmanSimulator(Simulator):
+    def __init__(self, Nlat, D, **kwargs):
+        if D < 4:
+            D = 4  # minimum of 5 variables required for Friedman's function (Z is one)
+        super().__init__(Nlat, D, **kwargs)
+
+    def _create_Y(self, X, Z, treat, yconf, sp_yconf, interf, eps_sd, **kwargs):
+        eps_y = np.random.normal(loc=0, scale=eps_sd, size=(self.N, 1))
+        Y = 10*np.sin(np.pi*X[:, [0]]*X[:, [1]]) + 20*(X[:, [2]] - 0.5)**2 + 10*X[:, [3]] + treat*Z + eps_y
+
+        if self.sp_confound is not None:
+            Y += np.dot(np.dot(self.sp_confound, X), sp_yconf)
+
+        Y += np.dot(np.dot(self.interference, Z), interf)
+        return Y
+
+
 if __name__ == "__main__":
     ## Imports
     import numpy as np
     import matplotlib.pyplot as plt
-    from rundown import Simulator
+    from rundown import Simulator, FriedmanSimulator
     from libpysal import weights
     from spopt.region import RegionKMeansHeuristic
 
@@ -185,6 +202,16 @@ if __name__ == "__main__":
 
     ## Nonspatial linear simulation (scenario 1)
     sim = Simulator(Nlat, D)
+    X, Y, Z = sim.simulate()
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Nonspatial nonlinear simulation (scenario 2)
+    sim = FriedmanSimulator(Nlat, D)
     X, Y, Z = sim.simulate()
 
     _, axes = plt.subplots(ncols=3)
