@@ -56,11 +56,11 @@ They review these methods and do a simulation study to compare their precision f
 |    4   |    F   | W                   | none         |                    |                    |
 |    5   |    T   | none                | partial      | :heavy_check_mark: | :heavy_check_mark: |
 |    6   |    F   | none                | partial      |                    |                    |
-|    7   |    T   | W                   | partial      | :heavy_check_mark: |                    |
+|    7   |    T   | W                   | partial      | :heavy_check_mark: | :heavy_check_mark: |
 |    8   |    F   | W                   | partial      |                    |                    |
-|    9   |    T   | none                | general      | :heavy_check_mark: |                    |
+|    9   |    T   | none                | general      | :heavy_check_mark: | :heavy_check_mark: |
 |   10   |    F   | none                | general      |                    |                    |
-|   11   |    T   | W                   | general      | :heavy_check_mark: |                    |
+|   11   |    T   | W                   | general      | :heavy_check_mark: | :heavy_check_mark: |
 |   12   |    F   | W                   | general      |                    |                    |
 |   13   |    T   | none                | network      | :heavy_check_mark: | :heavy_check_mark: |
 |   14   |    F   | none                | network      |                    |                    |

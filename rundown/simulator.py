@@ -178,8 +178,9 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from rundown import Simulator
     from libpysal import weights
+    from spopt.region import RegionKMeansHeuristic
 
-    Nlat = 30
+    Nlat = 40
     D = 2
 
     ## Nonspatial linear simulation (scenario 1)
@@ -196,6 +197,57 @@ if __name__ == "__main__":
     sp_confound = weights.lat2W(Nlat, Nlat, rook=True).full()[0]
     sim = Simulator(Nlat, D, sp_confound=sp_confound)
     X, Y, Z = sim.simulate()
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Linear partial spatial interference (scenario 5)
+    data = np.vstack((np.hstack((np.ones((Nlat//2, Nlat//2)), 2*np.ones((Nlat//2, Nlat//2)))),
+                      np.hstack((3*np.ones((Nlat//2, Nlat//2)), 4*np.ones((Nlat//2, Nlat//2))))))
+    interference = np.zeros((Nlat**2, Nlat**2))
+
+    for p in range(Nlat**2):
+        i1, j1 = np.unravel_index(p, (Nlat, Nlat))
+        for q in range(Nlat**2):
+            i2, j2 = np.unravel_index(q, (Nlat, Nlat))
+            if data[i1, j1] == data[i2, j2]:
+                interference[p, q] = 1
+
+    sim = Simulator(Nlat, D, interference=interference)
+    X, Y, Z = sim.simulate(treat=0.2)
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Spatially confounded partial spatial interference (scenario 7)
+    sim = Simulator(Nlat, D, sp_confound=sp_confound, interference=interference)
+    X, Y, Z = sim.simulate(treat=0.2)
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Linear general spatial interference (scenario 9)
+    sim = Simulator(Nlat, D, interference="general")
+    X, Y, Z = sim.simulate(treat=0.2)
+
+    _, axes = plt.subplots(ncols=3)
+    axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
+    axes[1].imshow(Y.reshape(Nlat, Nlat))
+    axes[2].imshow(Z.reshape(Nlat, Nlat))
+    plt.show()
+
+    ## Spatially confounded linear general spatial interference (scenario 11)
+    sim = Simulator(Nlat, D, sp_confound=sp_confound, interference="general")
+    X, Y, Z = sim.simulate(treat=0.2)
 
     _, axes = plt.subplots(ncols=3)
     axes[0].imshow(X[:, 0].reshape(Nlat, Nlat))
