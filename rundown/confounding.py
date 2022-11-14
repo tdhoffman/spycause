@@ -4,7 +4,7 @@ __author__ = "Tyler D. Hoffman cause@tdhoffman.com"
 Spatial confounding adjustments for causal inference.
 TODO:
 - reformat all models to accept treatment vector separately and return separate effects, etc
-- reformat all models to accept possible lags of treatment vector (i.e., InterferenceAdjuster was used
+- reformat all models to accept possible lags of treatment vector (i.e., InterferenceAdj was used
   prior to a confounding adjusted model)
 - read up on IVs and square it up with Reich
   - SAR as written might be well adapted to becoming the IV model class
@@ -14,7 +14,9 @@ TODO:
 - rectify priors with Reich's priors on pg. 17
 """
 
+import stan
 import numpy as np
+import pandas as pd
 import libpysal.weights as weights
 from ..utils import set_endog
 from sklearn.base import RegressorMixin
@@ -22,6 +24,61 @@ from sklearn.base.linear_model import LinearModel
 from sklearn.utils.validation import check_is_fitted
 from sklearn.utils.extmath import safe_sparse_dot
 from scipy.stats import pearsonr
+
+
+class BayesOLS(RegressorMixin, LinearModel):
+    def __init__(self, w=None, fit_intercept=True):
+        self.w = w
+        self.fit_intercept = fit_intercept
+        self._stanf = "stan/ols.stan"
+
+    def _decision_function(self, X, Z):
+        check_is_fitted(self)
+
+        X = self._validate_data(X, accept_sparse=True, reset=False)
+        Z = self._validate_data(Z, accept_sparse=True, reset=False)
+        base = safe_sparse_dot(X, self.coef_.T, dense_output=True) + \
+            safe_sparse_dot(Z, self.ate_.T, dense_output=True)
+        if self.fit_intercept:
+            return base + self.intercept_
+        return base
+
+    def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
+        N, D = X.shape
+        if len(Z.shape) < 1:
+            Z = Z.reshape(-1, 1)
+        I = Z.shape[1]
+
+        if self.fit_intercept:
+            X = np.hstack((np.ones((N, 1)), X))
+
+        with open(self._stanf, "r") as f:
+            model_code = f.read()
+
+        model_data = {"N": N, "D": D, "I": I, "X": X, "y": y, "Z": Z}
+        posterior = stan.build(model_code, data=model_data)
+        self.stanfit_ = posterior.sample(num_chains=nchains,
+                                         num_samples=nsamples,
+                                         num_warmup=nwarmup,
+                                         save_warmup=save_warmup)
+        self.results_ = self.stanfit_.to_frame()
+
+        # Get posterior means
+        if self.fit_intercept:
+            self.intercept_ = self.results_["beta.1"].mean()
+            self.coef_ = self.results_[[f"beta.{d+1}" for d in range(1, D)]].mean()
+        else:
+            self.coef_ = self.results_[[f"beta.{d+1}" for d in range(D)]].mean()
+        self.ate_ = self.results_[[f"tau.{i+1}" for i in range(I)]].mean()
+        return self
+
+    def score(self, X, y, Z):
+        """
+        Computes pseudo R2 for the model.
+        """
+
+        y_pred = self.predict(X, Z)
+        return float(pearsonr(y.flatten(), y_pred.flatten())[0]**2)
 
 
 class SAR(RegressorMixin, LinearModel):
@@ -120,9 +177,11 @@ class SAR(RegressorMixin, LinearModel):
 class SpSmoothing:
     pass
 
+
 class ModeledPropScore:
     def __init__(self):
         self._stanf = "../stan/prop_score.stan"
+
 
 class TwoStagePropScore:
     pass
