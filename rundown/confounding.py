@@ -180,7 +180,7 @@ class SpSmoothing:
 
 class ModeledPropScore:
     def __init__(self):
-        self._stanf = "../stan/prop_score.stan"
+        self._stanf = "stan/prop_score.stan"
 
 
 class TwoStagePropScore:
