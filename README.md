@@ -1,7 +1,8 @@
 # rundown
 The rundown of (a) scenarios provoking issues in spatial causal inference, (b) existing spatial causal models, and (c) the matrix of applications of members of (b) on members of (a).
 
-Throughout, we assume that there is **only one** observation per region (unlike Reich et al. 2021).
+Throughout, we assume that there is **only one** observation per region (unlike Reich et al. 2021) and that all models
+permit a causal interpretation.
 
 ## TODO
 - ~~Make simulations for all the data scenarios~~
@@ -47,7 +48,7 @@ They review these methods and do a simulation study to compare their precision f
 - ...
 
 
-# Data-model matrix
+# Data scenarios
 
 | Number | Linear | Spatial confounding | Interference |    Implemented?    |       Tested?      |
 | :----: | :----: | :------------------ | :----------- | :----------------: | :----------------: |
@@ -147,3 +148,45 @@ subclasses.
 
 `FriedmanSimulator` is also implemented. The class exploits the modularity of the base `Simulator`
 and only implements a nonlinear functional form for Y.
+
+
+# Models
+|  Name  | Linear | Spatial confounding | Interference |    Implemented?    |       Tested?      |
+| :----: | :----: | :------------------ | :----------- | :----------------: | :----------------: |
+| BCF    |    F   | none                | none         |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+|        |        |                     |              |                    |                    |
+
+
+# Data-model matrix
+| Data scenario | | |
+| :-----------: |-|-|
+|       1       | | |
+|       2       | | |
+|       3       | | |
+|       4       | | |
+|       5       | | |
+|       6       | | |
+|       7       | | |
+|       8       | | |
+|       9       | | |
+|      10       | | |
+|      11       | | |
+|      12       | | |
+|      13       | | |
+|      14       | | |
+|      15       | | |
+|      16       | | |
