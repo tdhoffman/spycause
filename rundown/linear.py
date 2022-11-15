@@ -81,6 +81,40 @@ class BayesOLS(RegressorMixin, LinearModel):
         return float(pearsonr(y.flatten(), y_pred.flatten())[0]**2)
 
 
+class CAR(RegressorMixin, LinearModel):
+    """
+    """
+
+    def __init__(self, w=None):
+        self.w = w
+        self.node1 = w.to_adjlist()['focal']
+        self.node2 = w.to_adjlist()['neighbor']
+
+    def _decision_function(self, X, Z):
+        # TODO REPLACE THIS WITH A CAR PREDICTION
+        # IS IT THE SAME AS FOR SAR?
+        check_is_fitted(self)
+
+        X = self._validate_data(X, accept_sparse=True, reset=False)
+        Z = self._validate_data(Z, accept_sparse=True, reset=False)
+        base = safe_sparse_dot(X, self.coef_.T, dense_output=True) + \
+            safe_sparse_dot(Z, self.ate_.T, dense_output=True)
+        if self.fit_intercept:
+            return base + self.intercept_
+        return base
+
+    def fit(self, X, y, Z):
+        pass
+
+    def score(self, X, y, Z):
+        """
+        Computes pseudo R2 for the model.
+        """
+
+        y_pred = self.predict(X, Z)
+        return float(pearsonr(y.flatten(), y_pred.flatten())[0]**2)
+
+
 class SAR(RegressorMixin, LinearModel):
     def __init__(self, w=None, fit_intercept=True):
         self.w = w
