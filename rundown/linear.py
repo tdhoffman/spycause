@@ -36,7 +36,7 @@ class BayesOLS(RegressorMixin, LinearModel):
     def predict(self, X, Z):
         # This is all predict is in sklearn.linear_model
         return self._decision_function(X, Z)
-    
+
     def _decision_function(self, X, Z):
         check_is_fitted(self)
 
@@ -46,7 +46,7 @@ class BayesOLS(RegressorMixin, LinearModel):
         base = safe_sparse_dot(X, self.coef_.T, dense_output=True) + \
             safe_sparse_dot(Z, self.ate_.T, dense_output=True)
         if self.fit_intercept:
-            return base + self.intercept_
+            base += self.intercept_
         return base
 
     def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
@@ -102,22 +102,31 @@ class CAR(RegressorMixin, LinearModel):
         self.fit_intercept = fit_intercept
         self._stanf = os.path.join(_package_directory, "stan", "car.stan")
 
+    def predict(self, X, Z):
+        # This is all predict is in sklearn.linear_model
+        return self._decision_function(X, Z)
+
     def _decision_function(self, X, Z):
         # TODO REPLACE THIS WITH A CAR PREDICTION
         # IS IT THE SAME AS FOR SAR?
         check_is_fitted(self)
 
         X = self._validate_data(X, accept_sparse=True, reset=False)
-        return safe_sparse_dot(
-            np.linalg.inv(np.eye(self.w.n) - self.indir_coef_ * self.w.full()[0]),
-            safe_sparse_dot(X, self.coef_.T, dense_output=True), dense_output=True) + \
-            self.intercept_
+        base = safe_sparse_dot(
+               np.linalg.inv(np.eye(self.w.n) - self.indir_coef_ * self.w.full()[0]),
+               safe_sparse_dot(X, self.coef_.T, dense_output=True), dense_output=True)
+        if self.fit_intercept:
+            base += self.intercept_
+        return base
 
     def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
         N, D = X.shape
         if len(Z.shape) < 1:
             Z = Z.reshape(-1, 1)
         I = Z.shape[1]
+
+        if len(y.shape) > 1:
+            y = y.flatten()
 
         if self.fit_intercept:
             X = np.hstack((np.ones((N, 1)), X))
@@ -127,7 +136,7 @@ class CAR(RegressorMixin, LinearModel):
             w = self.w.full()[0]
         else:
             w = self.w
-        W_n = w[np.triu_indices(N)].sum()  # number of adjacent region pairs
+        W_n = w[np.triu_indices(N)].sum(dtype=np.int64)  # number of adjacent region pairs
 
         with open(self._stanf, "r") as f:
             model_code = f.read()

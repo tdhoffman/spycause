@@ -49,13 +49,13 @@ data {
   matrix[N, I] Z;  // inputted treatment variable
 
   // CAR stuff
-  matrix<lower=0, upper=1> W;  // adjacency matrix
-  int W_n;                     // number of adjacent region pairs
+  matrix<lower=0, upper=1>[N, N] W;  // adjacency matrix
+  int W_n;                           // number of adjacent region pairs
 }
 
 transformed data {
   int W_sparse[W_n, 2];  // adjacency pairs
-  vector[n] D_sparse;    // diagonal of D (number of neighbors for each region)
+  vector[N] D_sparse;    // diagonal of D (number of neighbors for each region)
 
   // Generate sparse representation for W
   int counter = 1;
@@ -71,16 +71,16 @@ transformed data {
   }
 
   // Obtain entries of D
-  for (i in 1:n) D_sparse[i] = sum(W[i]);
+  for (i in 1:N) D_sparse[i] = sum(W[i]);
 
   // Get eigenvalues of D^{-1/2} * W * D^{-1/2}
-  vector[n] invsqrtD = 1 ./ sqrt(D_sparse);
-  vector[n] lambda = eigenvalues_sym(quad_form(W, diag_matrix(invsqrtD)));
+  vector[N] invsqrtD = 1 ./ sqrt(D_sparse);
+  vector[N] lambda = eigenvalues_sym(quad_form(W, diag_matrix(invsqrtD)));
 }
 
 parameters {
   vector[D] beta;        // covariate effects
-  real tau[I];           // treatment effects (possibly including lag)
+  vector[I] tau;         // treatment effects (possibly including lag)
   real<lower=0> sigma2;  // variance of outcome
 
   // CAR effects

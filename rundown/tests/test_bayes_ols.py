@@ -3,7 +3,8 @@ import rundown as rd
 from libpysal.weights import lat2W
 
 ## Set up parameters
-N = 30
+Nlat = 30
+N = Nlat**2
 D = 2
 sd_X = 0.75
 sd_Y = 0.1
