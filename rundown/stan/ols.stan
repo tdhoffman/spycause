@@ -9,8 +9,8 @@ data {
 
 parameters {
   vector[D] beta;  // covariate effects
-  real tau[I];     // treatment effects (possibly including lag)
-  real sigma2;     // variance of outcome
+  vector[I] tau;   // treatment effects (possibly including lag)
+  real<lower=0> sigma2;  // variance of outcome
 }
 
 transformed parameters {
