@@ -1,6 +1,7 @@
 import numpy as np
 import rundown as rd
 from libpysal.weights import lat2W
+from sklearn.pipeline import Pipeline
 
 ## Set up parameters
 Nlat = 30
@@ -30,3 +31,6 @@ model = model.fit(X, Y, Z)
 print(model.ate_)
 print(model.coef_)
 print(model.score(X, Y, Z))
+
+
+## Interference adjustment

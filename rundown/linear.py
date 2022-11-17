@@ -3,15 +3,9 @@ __author__ = "Tyler D. Hoffman cause@tdhoffman.com"
 """
 Spatial confounding adjustments for causal inference.
 TODO:
-- reformat all models to accept treatment vector separately and return separate effects, etc
-- reformat all models to accept possible lags of treatment vector (i.e., InterferenceAdj was used
-  prior to a confounding adjusted model)
 - read up on IVs and square it up with Reich
   - SAR as written might be well adapted to becoming the IV model class
   - ...and then we default to CAR in all other scenarios
-- add nonlinear capabilities with small NNs (possibly another file)
-- check https://github.com/reich-group/SpatialCausalReview for their code
-- rectify priors with Reich's priors on pg. 17
 """
 
 import os

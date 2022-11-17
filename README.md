@@ -157,17 +157,7 @@ and only implements a nonlinear functional form for Y.
 | CAR   | unobserved          | :heavy_check_mark: | :heavy_check_mark: |
 | ICAR  | unobserved          | :heavy_check_mark: |                    |
 | Joint |                     |                    |                    |
-|       |                     |                    |                    |
-|       |                     |                    |                    |
-|       |                     |                    |                    |
-|       |                     |                    |                    |
-|       |                     |                    |                    |
-|       |                     |                    |                    |
-|       |                     |                    |                    |
-|       |                     |                    |                    |
-|       |                     |                    |                    |
-|       |                     |                    |                    |
-|       |                     |                    |                    |
+| IVs   | unobserved          |                    |                    |
 |       |                     |                    |                    |
 
 ## Model development
@@ -188,8 +178,12 @@ The DAG for our model setting looks like this:
 ![image](confounding-setting.png)
 
 where $\pi(x, u) = P(Z = 1 \mid X = x, U = u)$ is the propensity score, $X$ is a set of observed confounders, and $U$ stands for all unobserved spatial confounders.
+$\pi$ is placed in a square node to indicate that it is not a random variable, and rather a deterministic function of random variables $X$ and $U$.
+We'll vary the way in which $\pi$ is incorporated in the model (directly or using B-spline smoothing).
+Some of the models require multiple CAR terms 
 
 Finally, we're going to omit nonlinear models for now for simplicity, as I can't find any literature on them in the spatial setting and that means things are going to get complicated.
+It'll be a good avenue for future work.
 
 # Data-model matrix
 | Data scenario | | |
