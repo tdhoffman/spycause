@@ -151,25 +151,45 @@ and only implements a nonlinear functional form for Y.
 
 
 # Models
-|  Name  | Linear | Spatial confounding | Interference |    Implemented?    |       Tested?      |
-| :----: | :----: | :------------------ | :----------- | :----------------: | :----------------: |
-| BCF    |    F   | none                | none         |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
-|        |        |                     |              |                    |                    |
+| Name  | Spatial confounding | Implemented?       | Tested?            |
+|:-----:|:--------------------|:------------------:|:------------------:|
+| OLS   | none                | :heavy_check_mark: | :heavy_check_mark: |
+| CAR   | unobserved          | :heavy_check_mark: | :heavy_check_mark: |
+| ICAR  | unobserved          | :heavy_check_mark: |                    |
+| Joint |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
+|       |                     |                    |                    |
 
+## Model development
+Interference adjustments come in the form of including a lag of the treatment variable in the outcome model. As such, the interference adjustment is implemented as a `Transformer`, a preprocessing step to be done prior to fitting a model.
+Hence in the table above, a column for interference is omitted because any of these models is designed to permit a transformed treatment variable.
+Reich uses the following models to demonstrate the efficacy of the joint model:
+- Nonspatial OLS
+- Nonspatial OLS with B-spline function of propensity score
+- CAR model
+- CAR model with B-spline function of propensity score
+- CAR model with post hoc debiasing
+- Jointly CAR model for outcome and treatment
+- Joint model with feedback cut
+
+Thanks to some results in Hahn and Herren (2022), we know that it's overkill to include $X$, $U$, and $\pi(X, U)$ in the model for $Y$.
+The DAG for our model setting looks like this:
+
+![image](confounding-setting.png)
+
+where $\pi(x, u) = P(Z = 1 \mid X = x, U = u)$ is the propensity score, $X$ is a set of observed confounders, and $U$ stands for all unobserved spatial confounders.
+
+Finally, we're going to omit nonlinear models for now for simplicity, as I can't find any literature on them in the spatial setting and that means things are going to get complicated.
 
 # Data-model matrix
 | Data scenario | | |
