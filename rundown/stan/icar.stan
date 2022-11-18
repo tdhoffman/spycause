@@ -1,10 +1,10 @@
 data {
   int<lower=1> N;  // number of observations
   int<lower=1> D;  // number of features
-  int          I;  // 2 if interference-adjusted, 1 otherwise
+  int          K;  // 2 if interference-adjusted, 1 otherwise
   matrix[N, D] X;  // confounding variables
   vector[N]    y;  // outcome variable
-  matrix[N, I] Z;  // inputted treatment variable
+  matrix[N, K] Z;  // inputted treatment variable
 
   // ICAR stuff
   int<lower=1> N_edges;                        // number of edges
@@ -14,7 +14,7 @@ data {
 
 parameters {
   vector[D] beta;  // covariate effects
-  real tau[I];     // treatment effects (possibly including lag)
+  vector[K] tau;   // treatment effects (possibly including lag)
   real sigma2;     // variance of outcome
 
   // ICAR effects

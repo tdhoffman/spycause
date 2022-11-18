@@ -167,9 +167,69 @@ class SpSmoothing:
     pass
 
 
-class ModeledPropScore:
-    def __init__(self):
-        self._stanf = os.path.join(_package_directory, "stan", "prop_scores.stan")
+class Joint(RegressorMixin, LinearModel):
+    def __init__(self, w=None, fit_intercept=True):
+        self.w = w
+        self.fit_intercept = fit_intercept
+        self._stanf = os.path.join(_package_directory, "stan", "prop_score.stan")
+
+    def predict(self, X, Z):
+        # This is all predict is in sklearn.linear_model
+        return self._decision_function(X, Z)
+
+    def _decision_function(self, X, Z):
+        # TODO REPLACE THIS WITH THE RIGHT PREDICTION
+        check_is_fitted(self)
+
+        X = self._validate_data(X, accept_sparse=True, reset=False)
+        base = safe_sparse_dot(
+               np.linalg.inv(np.eye(self.w.n) - self.indir_coef_ * self.w.full()[0]),
+               safe_sparse_dot(X, self.coef_.T, dense_output=True), dense_output=True)
+        if self.fit_intercept:
+            base += self.intercept_
+        return base
+
+    def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
+        N, D = X.shape
+        if len(Z.shape) < 1:
+            Z = Z.reshape(-1, 1)
+        I = Z.shape[1]
+
+        if len(y.shape) > 1:
+            y = y.flatten()
+
+        if self.fit_intercept:
+            X = np.hstack((np.ones((N, 1)), X))
+
+        # Process weights matrix
+        if type(self.w) == WeightsType:
+            node1 = self.w.to_adjlist()['focal']
+            node2 = self.w.to_adjlist()['neighbor']
+            w = self.w.full()[0]
+        else:
+            raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
+
+        with open(self._stanf, "r") as f:
+            model_code = f.read()
+
+        model_data = {"N": N, "D": D, "I": I, "X": X, "y": y, "Z": Z,
+                      "W": w, "node1": node1.values + 1, "node2": node2.values + 1}
+        posterior = stan.build(model_code, data=model_data)
+        self.stanfit_ = posterior.sample(num_chains=nchains,
+                                         num_samples=nsamples,
+                                         num_warmup=nwarmup,
+                                         save_warmup=save_warmup)
+        self.results_ = self.stanfit_.to_frame()
+
+        # Get posterior means
+        if self.fit_intercept:
+            self.intercept_ = self.results_["beta.1"].mean()
+            self.coef_ = self.results_[[f"beta.{d+1}" for d in range(1, D)]].mean()
+        else:
+            self.coef_ = self.results_[[f"beta.{d+1}" for d in range(D)]].mean()
+        self.ate_ = self.results_[[f"tau.{i+1}" for i in range(I)]].mean()
+        self.indir_coef_ = self.results_["rho"].mean()
+        return self
 
 
 class TwoStagePropScore:

@@ -1,9 +1,10 @@
 data {
   int N;           // number of observation units
   int D;           // number of confounding variables
+  int K;           // 2 if interference-adjusted, 1 otherwise
   vector[N] Y;     // outcome variable
   matrix[N, D] X;  // confounders
-  vector[N] Z;     // treatment variable
+  int Z[N, K];     // treatment variable
 
   // CAR model stuff
   int<lower=0> N_edges;                  // number of edges
@@ -14,17 +15,17 @@ data {
 parameters {
   vector[D] beta;       // effects of confounders on outcome
   vector[D] alpha;      // effects of confounders on treatment
-  real tau;             // effect of treatment on outcome
+  vector[K] tau;        // effect of treatment on outcome
   vector[N] u;          // spatial effects in outcome model
   vector[N] v;          // spatial effects in treatment model
-  real<lower=0> sd_u;   // SD of CAR term for outcome model
-  real<lower=0> sd_v;   // SD of CAR term for treatment model
+  real<lower=0> sd_u;   // SD of ICAR term for outcome model
+  real<lower=0> sd_v;   // SD of ICAR term for treatment model
   real<lower=0> sigma;  // SD of outcome
   real psi;             // shared spatial random effect on outcome
 }
 
 transformed parameters {
-  vector<lower=0, upper=1>[N] pi = inv_logit(X*alpha + sd_v*v);
+  real<lower=0, upper=1> pi[N] = to_array_1d(inv_logit(X*alpha + sd_v*v));
   real<lower=0> tau_u = 1/sd_u^2;
   real<lower=0> tau_v = 1/sd_v^2;
 }
@@ -37,7 +38,8 @@ model {
   // Priors
   alpha ~ normal(0, 5);
   beta ~ normal(0, 5);
-  tau_u ~ gamma(3.2761, 1.81);  // Carlin WinBUGS priors on the CAR terms
+  psi ~ normal(0, 0.1);
+  tau_u ~ gamma(3.2761, 1.81);  // Carlin WinBUGS priors on the ICAR terms
   tau_v ~ gamma(3.2761, 1.81);
   
   // CAR priors

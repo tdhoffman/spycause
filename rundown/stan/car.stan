@@ -17,6 +17,8 @@ functions {
   * @return Log probability density of CAR prior up to additive constant
   * 
   * Citation:
+
+
   * Joseph, M. (2016). "Exact sparse CAR models in Stan." 
   *     https://mc-stan.org/users/documentation/case-studies/mbjoseph-CARStan.html
   */
@@ -43,10 +45,10 @@ functions {
 data {
   int<lower=1> N;  // number of observations
   int<lower=1> D;  // number of features
-  int          I;  // 2 if interference-adjusted, 1 otherwise
+  int          K;  // 2 if interference-adjusted, 1 otherwise
   matrix[N, D] X;  // confounding variables
   vector[N]    y;  // outcome variable
-  matrix[N, I] Z;  // inputted treatment variable
+  matrix[N, K] Z;  // inputted treatment variable
 
   // CAR stuff
   matrix<lower=0, upper=1>[N, N] W;  // adjacency matrix
@@ -80,7 +82,7 @@ transformed data {
 
 parameters {
   vector[D] beta;        // covariate effects
-  vector[I] tau;         // treatment effects (possibly including lag)
+  vector[K] tau;         // treatment effects (possibly including lag)
   real<lower=0> sigma2;  // variance of outcome
 
   // CAR effects
