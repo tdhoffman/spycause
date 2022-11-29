@@ -2,10 +2,15 @@ __author__ = "Tyler D. Hoffman cause@tdhoffman.com"
 
 """
 Spatial confounding adjustments for causal inference.
+All classes implement linear models with explicit treatment variable.
+CONTENTS: 
+- Bayesian OLS estimation via BayesOLS
+- Exact sparse CAR model via CAR
+- Intrinsic CAR model via ICAR
+- Joint outcome and treatment model via Joint
+- Spatial instrumental variables via SpatialIV (UNFINISHED)
+
 TODO:
-- read up on IVs and square it up with Reich
-  - SAR as written might be well adapted to becoming the IV model class
-  - ...and then we default to CAR in all other scenarios
 - joint model and prop scores
 """
 
@@ -163,7 +168,7 @@ class CAR(RegressorMixin, LinearModel):
         return float(pearsonr(y.flatten(), y_pred.flatten())[0]**2)
 
 
-class SpSmoothing:
+class ICAR(RegressorMixin, LinearModel):
     pass
 
 
@@ -232,16 +237,13 @@ class Joint(RegressorMixin, LinearModel):
         return self
 
 
-class TwoStagePropScore:
-    pass
-
-
 class SpatialIV(RegressorMixin, LinearModel):
     """
     Fits the spatial instrumental variable model:
     Y = (gamma_hat*A)*tau + X*beta + u + eps_y
     Z = alpha + A*gamma + X*lambda + phi*u + v + eps_z
     where A is an instrument, u and v are CAR terms.
+    UNFINISHED AND UNTESTED
     """
 
     def __init__(self, w=None, fit_intercept=True):

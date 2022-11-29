@@ -153,12 +153,23 @@ and only implements a nonlinear functional form for Y.
 # Models
 | Name  | Spatial confounding | Implemented?       | Tested?            |
 |:-----:|:--------------------|:------------------:|:------------------:|
-| OLS   | none                | :heavy_check_mark: | :heavy_check_mark: |
-| CAR   | unobserved          | :heavy_check_mark: | :heavy_check_mark: |
-| ICAR  | unobserved          | :heavy_check_mark: |                    |
-| Joint |                     |                    |                    |
-| IVs   | unobserved          |                    |                    |
-|       |                     |                    |                    |
+| OLS+X | none                | :heavy_check_mark: | :heavy_check_mark: |
+| OLS+P | none                | :heavy_check_mark: | :heavy_check_mark: |
+| CAR+X | unobserved          | :heavy_check_mark: | :heavy_check_mark: |
+| CAR+P | unobserved          | :heavy_check_mark: | :heavy_check_mark: |
+| ICAR+X| unobserved          | :heavy_check_mark: |                    |
+| ICAR+P| unobserved          | :heavy_check_mark: |                    |
+| Joint | unobserved          | :heavy_check_mark: |                    |
+
+(Plus interference-adjusted versions of all of these.)
+
+Here, "+X" refers to including all the nonspatial confounders, while "+P" refers to just including treatment and propensity score.
+We may not end up using the CAR models for simplicity (ICAR is much better known), but I anticipate the exact sparse CAR models being able to capture spatial structure better.
+
+### TODO 11/29/2022:
+- ICAR wrapper
+- Flesh out joint -- stan code for treatment and lag
+- tests using `Simulator`
 
 ## Model development
 Interference adjustments come in the form of including a lag of the treatment variable in the outcome model. As such, the interference adjustment is implemented as a `Transformer`, a preprocessing step to be done prior to fitting a model.
@@ -184,6 +195,8 @@ Some of the models require multiple CAR terms
 
 Finally, we're going to omit nonlinear models for now for simplicity, as I can't find any literature on them in the spatial setting and that means things are going to get complicated.
 It'll be a good avenue for future work.
+
+I think omitting IVs and GRD also makes sense, as they require more assumptions or structure and therefore are somewhat less comparable to the regression adjustments.
 
 # Data-model matrix
 | Data scenario | | |

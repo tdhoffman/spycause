@@ -19,6 +19,7 @@ parameters {
 
   // ICAR effects
   vector[N] phi;   // spatially structured residuals
+  real<lower=0> sd_p;  // sd of ICAR effects
 }
 
 transformed parameters {
@@ -26,11 +27,12 @@ transformed parameters {
 }
 
 model {
-  y ~ normal(X*beta + Z*tau + phi, sigma);
+  y ~ normal(X*beta + Z*tau + sd_phi*phi, sigma);
 
   tau ~ normal(0, 10);
   beta ~ normal(0, 10);
   sigma2 ~ inv_gamma(0.5, 0.005);
+  sd_phi ~ gamma(3.2761, 1.81);  // Carlin WinBUGS prior on the ICAR term
 
   // ICAR prior
   target += -0.5 * dot_self(phi[node1] - phi[node2]);
