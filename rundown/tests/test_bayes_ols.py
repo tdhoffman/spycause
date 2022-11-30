@@ -7,30 +7,23 @@ from sklearn.pipeline import Pipeline
 Nlat = 30
 N = Nlat**2
 D = 2
-sd_X = 0.75
-sd_Y = 0.1
+x_sd = 0.75
+y_sd = 0.1
 beta = np.array([[0.5, -1]]).T
 tau = 2
 
 ## Generate data
-# Generate X
-X = np.random.normal(loc=0, scale=sd_X, size=(N, D))
-
-# Generate Z as a function of X
-prop_scores = np.abs(X.sum(1).reshape(-1, 1)) / np.abs(X.sum(1)).max()
-Z = np.random.binomial(1, p=prop_scores, size=(N, 1))
-
-# Generate Y
-Y = np.dot(X, beta) + np.dot(Z, tau) + np.random.normal(loc=0, scale=sd_Y, size=(N, 1))
+sim = rd.Simulator(Nlat, D)
+X, Y, Z = sim.simulate(treat=tau, yconf=beta, x_sd=x_sd, eps_sd=y_sd)
 
 ## Fit model
 model = rd.BayesOLS(fit_intercept=False)
-model = model.fit(X, Y, Z)
+model = model.fit(X, Y, Z, save_warmup=False)
 
 ## Results
 print(model.ate_)
 print(model.coef_)
 print(model.score(X, Y, Z))
 
-
 ## Interference adjustment
+pipe = Pipeline([("interference", rd.InterferenceAdj()), ("model", rd.BayesOLS)])

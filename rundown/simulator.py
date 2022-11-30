@@ -82,7 +82,7 @@ class Simulator:
             self.interference = np.eye(self.N)
 
     def simulate(self, treat=0.5, zconf=0.25, sp_zconf=0.25, yconf=0.5, sp_yconf=0.25,
-                 interf=0.8, x_sd=1, x_sp=0.9, eps_sd=0.1, **kwargs):
+                 interf=0, x_sd=1, x_sp=0.9, eps_sd=0.1, **kwargs):
         """
         Simulate data based on some parameters.
         All the conf and interf parameters could be arrays of size D
@@ -100,7 +100,7 @@ class Simulator:
                         effect of nonspatial confounding on Y
         sp_yconf      : float, default 0.25
                         effect of spatial confounding on Y
-        interf        : float, default 0.8
+        interf        : float, default 0
                         effect of interference on Y
         x_sd          : float, default 1
                         standard deviation of confounders
@@ -118,6 +118,8 @@ class Simulator:
 
         if np.ndim(x_sd) == 0:
             x_sd = np.repeat(x_sd, self.D)
+        if np.ndim(sp_zconf) == 0:
+            sp_zconf = np.repeat(sp_zconf, self.D)
 
         # Confounders
         means = np.random.choice(np.arange(-2 * self.D, 2 * self.D + 1, 1, dtype=int),
@@ -165,7 +167,9 @@ class Simulator:
         Generate Z based on parameters and confounders X.
         """
 
+        # xvals = (X - X.min()) / (X.max() - X.min())
         xvals = X.mean(1) / X.mean(1).max()
+        # xvals = (X - X.mean(0)) / X.std(0)
         if self.sp_confound is not None:
             xvals += np.dot(np.dot(self.sp_confound, xvals), sp_zconf)
 

@@ -98,9 +98,9 @@ transformed parameters {
 model {
   y ~ normal(X*beta + Z*tau + phi, sigma);
 
-  tau ~ normal(0, 10);
-  beta ~ normal(0, 10);
-  sigma2 ~ inv_gamma(0.5, 0.005);
+  tau ~ normal(0, 5);
+  beta ~ normal(0, 5);
+  sigma2 ~ cauchy(0, 5);
 
   // CAR prior
   phi ~ sparse_car(prec_phi, rho, W_sparse, D_sparse, lambda, N, W_n);

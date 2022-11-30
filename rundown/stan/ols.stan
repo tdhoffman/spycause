@@ -10,17 +10,18 @@ data {
 parameters {
   vector[D] beta;  // covariate effects
   vector[K] tau;   // treatment effects (possibly including lag)
-  real<lower=0> sigma2;  // variance of outcome
+  real<lower=0> sigma;  // SD of outcome
 }
 
-transformed parameters {
-  real sigma = sqrt(sigma2);  // SD, required for parametrizing the likelihood
-}
+// transformed parameters {
+// real sigma = sqrt(sigma2);  // SD, required for parametrizing the likelihood
+// }
 
 model {
   y ~ normal(X*beta + Z*tau, sigma);
 
-  tau ~ normal(0, 10);
-  beta ~ normal(0, 10);
-  sigma2 ~ inv_gamma(0.5, 0.005);
+  tau ~ normal(0, 5);
+  beta ~ normal(0, 5);
+  sigma ~ exponential(1);
+  //sigma2 ~ cauchy(0, 5);
 }
