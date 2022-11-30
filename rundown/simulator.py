@@ -158,7 +158,7 @@ class Simulator:
         if self.sp_confound is not None:
             Y += np.dot(np.dot(self.sp_confound, X), sp_yconf)
 
-        Y += np.dot(np.dot(self.interference, Z), interf)
+        Y += np.dot(self.interference, Z) * interf
 
         return Y
 

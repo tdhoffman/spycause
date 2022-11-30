@@ -25,5 +25,28 @@ print(model.ate_)
 print(model.coef_)
 print(model.score(X, Y, Z))
 
+## Add interference
+interf_eff = 10
+W = lat2W(Nlat, Nlat, rook=False)
+intsim = rd.Simulator(Nlat, D, interference=W)
+X, Y, Z = intsim.simulate(treat=tau, yconf=beta, x_sd=x_sd, eps_sd=y_sd, interf=interf_eff)
+
 ## Interference adjustment
-pipe = Pipeline([("interference", rd.InterferenceAdj()), ("model", rd.BayesOLS)])
+# pipe = Pipeline([("interference", rd.InterferenceAdj()), ("model", rd.BayesOLS)])
+intadj = rd.InterferenceAdj(w=W)
+Zint = intadj.transform(Z)
+
+# Interference is barely being estimated
+intmodel = rd.BayesOLS(fit_intercept=False)
+intmodel = intmodel.fit(X, Y, Zint, nsamples=3000, save_warmup=False)
+nointmodel = rd.BayesOLS(fit_intercept=False)
+nointmodel = nointmodel.fit(X, Y, Z, nsamples=3000, save_warmup=False)
+
+## Results
+# nointmodel has bias in tau and the betas are definitely off (all by about 0.2)
+# intmodel gets everything basically right except interference effect (only gets about 10%)
+print(intmodel.ate_)
+print(intmodel.coef_)
+print(nointmodel.ate_)
+print(nointmodel.coef_)
+# print(intmodel.score(X, Y, Z))  # doesn't work yet
