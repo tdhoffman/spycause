@@ -204,7 +204,7 @@ class ICAR(RegressorMixin, LinearModel):
         if type(self.w) == WeightsType:
             node1 = self.w.to_adjlist()['focal'].values + 1
             node2 = self.w.to_adjlist()['neighbor'].values + 1
-            N_edges = int(self.w.full()[0].sum())
+            N_edges = len(node1)
         else:
             raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
 
@@ -222,11 +222,11 @@ class ICAR(RegressorMixin, LinearModel):
 
         # Get posterior means
         if self.fit_intercept:
-            self.intercept_ = self.results_["beta.1"].mean()
-            self.coef_ = self.results_[[f"beta.{d+1}" for d in range(1, D)]].mean()
+            self.intercept_ = self.results_["beta.1"].mean().values
+            self.coef_ = self.results_[[f"beta.{d+1}" for d in range(1, D)]].mean().values
         else:
-            self.coef_ = self.results_[[f"beta.{d+1}" for d in range(D)]].mean()
-        self.ate_ = self.results_[[f"tau.{i+1}" for i in range(K)]].mean()
+            self.coef_ = self.results_[[f"beta.{d+1}" for d in range(D)]].mean().values
+        self.ate_ = self.results_[[f"tau.{i+1}" for i in range(K)]].mean().values
         self.indir_coef_ = self.results_["sd_r"].mean()
         return self
 

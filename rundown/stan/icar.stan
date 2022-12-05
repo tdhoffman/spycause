@@ -7,9 +7,9 @@ data {
   matrix[N, K] Z;  // inputted treatment variable
 
   // ICAR stuff
-  int<lower=1> N_edges;                        // number of edges
-  int<lower=1, upper=N_edges> node1[N_edges];  // node1[i] adjacent to node2[i]
-  int<lower=1, upper=N_edges> node2[N_edges];  // and node1[i] < node2[i]
+  int<lower=1> N_edges;                  // number of edges
+  int<lower=1, upper=N> node1[N_edges];  // node1[i] adjacent to node2[i]
+  int<lower=1, upper=N> node2[N_edges];  // and node1[i] < node2[i]
 }
 
 parameters {

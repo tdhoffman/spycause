@@ -221,10 +221,14 @@ class CARSimulator(Simulator):
                         spatial autocorrelation parameter
         y_sd          : float, default 0.1
                         SD of nonspatial error term on Y
-        ucar_sd       : float, default 0.5
+        ucar_sd       : float, default 2
                         SD of CAR term for confounding on Y
-        vcar_sd       : float, default 0.5
+        vcar_sd       : float, default 2
                         SD of CAR term for confounding on Z
+        ucar_str      : float, default 0.9
+                        strength of spatial association for confounding on Y
+        vcar_str      : float, default 0.9
+                        strength of spatial association for confounding on Z
         balance       : float, default 0.5
                         balancing factor that parametrizes the shared
                         spatial confounding between Y and Z
@@ -237,10 +241,14 @@ class CARSimulator(Simulator):
         """
 
         if np.ndim(x_sd) == 0:
-            x_sd = np.repeat(x_sd, self.D)
+            x_sd = x_sd*np.ones((self.D, 1))
+        if np.ndim(z_conf) == 0:
+            z_conf = z_conf*np.ones((self.D, 1))
+        if np.ndim(y_conf) == 0:
+            y_conf = y_conf*np.ones((self.D, 1))
 
         # Confounders -- keep them N(0, x_sd) so it's easier for Stan
-        X = np.random.normal(loc=0, scale=x_sd, size=(self.N, self.D))
+        X = np.random.normal(loc=0, scale=x_sd.flatten(), size=(self.N, self.D))
 
         # Create Queen weights and give X a little autocorrelation
         W = weights.lat2W(self.Nlat, self.Nlat, rook=False)
@@ -270,10 +278,10 @@ class CARSimulator(Simulator):
         return X, Y, Z
 
     def _create_Z(self, X, U, V, z_conf, balance):
-        return expit(X*z_conf + V + balance*U)
+        return expit(np.dot(X, z_conf) + V + balance*U)
 
     def _create_Y(self, X, Z, U, treat, y_conf, interf):
-        means = Z*treat + X*y_conf + U
+        means = Z*treat + np.dot(X, y_conf) + U
         if self.interference is not None:
             means += interf*np.dot(self.interference, Z)
         return means
