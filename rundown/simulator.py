@@ -6,7 +6,9 @@ Sets up simulation classes to be reused in experiments.
 
 import numpy as np
 import pandas as pd
+import scipy.sparse as sp
 import libpysal.weights as weights
+from scipy.special import expit
 from spopt.region import RandomRegion
 
 class Simulator:
@@ -39,6 +41,9 @@ class Simulator:
         self.N = Nlat**2
         self.D = D
         self.sp_confound = sp_confound
+
+        # if type(self.sp_confound) == weights.W:
+            # self.sp_confound = self.sp_confound.full()[0]
 
         # Parse interference options
         if type(interference) == str:
@@ -82,7 +87,7 @@ class Simulator:
             self.interference = np.eye(self.N)
 
     def simulate(self, treat=0.5, zconf=0.25, sp_zconf=0.25, yconf=0.5, sp_yconf=0.25,
-                 interf=0, x_sd=1, x_sp=0.9, eps_sd=0.1, **kwargs):
+                 interf=0, x_sd=1, x_sp=0.9, eps_sd=0.1, ycar_sd=0.5, zcar_sd=0.5, **kwargs):
         """
         Simulate data based on some parameters.
         All the conf and interf parameters could be arrays of size D
@@ -108,6 +113,10 @@ class Simulator:
                         spatial autocorrelation parameter
         eps_sd        : float, default 0.1
                         SD of nonspatial error term on Y
+        ycar_sd       : float, default 0.5
+                        SD of CAR term for confounding on Y
+        zcar_sd       : float, default 0.5
+                        SD of CAR term for confounding on Z
 
         Returns
         -------
@@ -118,21 +127,18 @@ class Simulator:
 
         if np.ndim(x_sd) == 0:
             x_sd = np.repeat(x_sd, self.D)
-        if np.ndim(sp_zconf) == 0:
-            sp_zconf = np.repeat(sp_zconf, self.D)
 
-        # Confounders
-        means = np.random.choice(np.arange(-2 * self.D, 2 * self.D + 1, 1, dtype=int),
-                                 size=self.D, replace=False)
-        X = np.zeros((self.N, self.D))
+        # Confounders -- keep them N(0, x_sd) so it's easier for Stan
+        X = np.random.normal(loc=0, scale=x_sd, size=(self.N, self.D))
 
+        # Create Queen weights and give X a little autocorrelation
         W = weights.lat2W(self.Nlat, self.Nlat, rook=False)
         W.transform = "r"
         W = W.full()[0]
+        X = np.dot(np.linalg.inv(np.eye(self.N) - x_sp * W), X)
 
-        for d in range(self.D):
-            X[:, d] = np.random.normal(loc=means[d], scale=x_sd[d], size=(self.N,))
-            X[:, d] = np.dot(np.linalg.inv(np.eye(self.N) - x_sp * W), X[:, d])
+        # Set up CAR terms for spatial confounding on Y and Z
+        self.sp_confound.transform = "r"
 
         Z = np.random.binomial(1, self._create_Z(X, zconf, sp_zconf, **kwargs)).reshape(-1, 1)
         Y = self._create_Y(X, Z, treat, yconf, sp_yconf, interf, eps_sd, **kwargs)
@@ -155,6 +161,11 @@ class Simulator:
 
         Y = np.dot(X, yconf) + treat * Z + eps_y
 
+        rowsums = np.fromiter(self.sp_confound.cardinalities.values(), dtype=float)
+        cov_y = (ycar_sd**2)*sp.linalg.spsolve(sp.diags(rowsums) - sp_yconf*self.sp_confound.sparse,
+                                               np.eye(self.N))
+        car_y = np.linalg.cholesky(cov_y)
+
         if self.sp_confound is not None:
             Y += np.dot(np.dot(self.sp_confound, X), sp_yconf)
 
@@ -162,18 +173,110 @@ class Simulator:
 
         return Y
 
-    def _create_Z(self, X, zconf, sp_zconf, **kwargs):
+    def _create_Z(self, X, zconf, zcar_sd, sp_zconf, **kwargs):
         """
         Generate Z based on parameters and confounders X.
         """
 
+        prop_scores = np.abs(X.sum(1).reshape(-1, 1)) / np.abs(X.sum(1)).max()
+        prop_scores *= zconf  # regular confounding
+        # xvals = X.mean(1).reshape(-1, 1)  # not sure what i was thinking here
         # xvals = (X - X.min()) / (X.max() - X.min())
-        xvals = X.mean(1) / X.mean(1).max()
         # xvals = (X - X.mean(0)) / X.std(0)
-        if self.sp_confound is not None:
-            xvals += np.dot(np.dot(self.sp_confound, xvals), sp_zconf)
+        # if self.sp_confound is not None:
+            # prop_scores += sp_zconf * np.dot(self.sp_confound, prop_scores)
 
-        return np.clip(0.25 + xvals * zconf, 0, 1)
+        # Set up spatial confounding
+        rowsums = np.fromiter(self.sp_confound.cardinalities.values(), dtype=float)
+        cov_z = (zcar_sd**2)*sp.linalg.spsolve(sp.diags(rowsums) - sp_zconf*self.sp_confound.sparse,
+                                               np.eye(self.N))
+        car_z = np.linalg.cholesky(cov_z)
+        prop_scores += np.dot(car_z, np.random.normal(size=(self.N, 1)))
+
+        return np.clip(prop_scores, 0, 1)
+
+
+class CARSimulator(Simulator):
+    def simulate(self, treat=0.5, z_conf=0.25, y_conf=0.5, interf=0, x_sd=1, x_sp=0.9,
+                 ucar_sd=2, ucar_str=0.9, vcar_sd=2, vcar_str=0.9, balance=0.5,
+                 y_sd=0.1, **kwargs):
+        """
+        Simulate data based on some parameters.
+        All the conf and interf parameters could be arrays of size D
+        if different variables have different levels of confounding or interference.
+
+        Parameters
+        ----------
+        treat         : float, default 0.5
+                        treatment effect of Z on Y
+        z_conf        : float, default 0.25
+                        effect of nonspatial confounding on Z
+        y_conf        : float, default 0.5
+                        effect of nonspatial confounding on Y
+        interf        : float, default 0
+                        effect of interference on Y
+        x_sd          : float, default 1
+                        standard deviation of confounders
+        x_sp          : float, default 0.9
+                        spatial autocorrelation parameter
+        y_sd          : float, default 0.1
+                        SD of nonspatial error term on Y
+        ucar_sd       : float, default 0.5
+                        SD of CAR term for confounding on Y
+        vcar_sd       : float, default 0.5
+                        SD of CAR term for confounding on Z
+        balance       : float, default 0.5
+                        balancing factor that parametrizes the shared
+                        spatial confounding between Y and Z
+
+        Returns
+        -------
+        X            : covariates (NxD)
+        Y            : outcomes (Nx1)
+        Z            : treatment (Nx1)
+        """
+
+        if np.ndim(x_sd) == 0:
+            x_sd = np.repeat(x_sd, self.D)
+
+        # Confounders -- keep them N(0, x_sd) so it's easier for Stan
+        X = np.random.normal(loc=0, scale=x_sd, size=(self.N, self.D))
+
+        # Create Queen weights and give X a little autocorrelation
+        W = weights.lat2W(self.Nlat, self.Nlat, rook=False)
+        W.transform = "r"
+        W = W.full()[0]
+        X = np.dot(np.linalg.inv(np.eye(self.N) - x_sp * W), X)
+
+        # Set up CAR terms for spatial confounding on Y and Z
+        self.sp_confound.transform = "r"  # row standardize so we don't need to use row sums
+        cov_u = (ucar_sd**2)*np.linalg.solve(np.eye(self.N) - ucar_str*self.sp_confound.sparse,
+                                             np.eye(self.N))
+        cov_v = (vcar_sd**2)*np.linalg.solve(np.eye(self.N) - vcar_str*self.sp_confound.sparse,
+                                             np.eye(self.N))
+        U = np.dot(cov_u, np.random.normal(size=(self.N, 1)))
+        V = np.dot(cov_v, np.random.normal(size=(self.N, 1)))
+
+        # Make propensity scores and generate Z
+        prop_scores = self._create_Z(X, U, V, z_conf, balance, **kwargs)
+        Z = np.random.binomial(1, prop_scores).reshape(-1, 1)
+
+        # Make means and generate Y
+        Ymeans = self._create_Y(X, Z, U, treat, y_conf, interf)
+        Y = np.random.normal(Ymeans, scale=y_sd)
+
+        # Compute treated percentage
+        self.treated_pct = (Z == 1).sum() / self.N
+        return X, Y, Z
+
+    def _create_Z(self, X, U, V, z_conf, balance):
+        return expit(X*z_conf + V + balance*U)
+
+    def _create_Y(self, X, Z, U, treat, y_conf, interf):
+        means = Z*treat + X*y_conf + U
+        if self.interference is not None:
+            means += interf*np.dot(self.interference, Z)
+        return means
 
 
 class FriedmanSimulator(Simulator):
@@ -378,3 +481,13 @@ if __name__ == "__main__":
     axes[1].imshow(Y.reshape(Nlat, Nlat))
     axes[2].imshow(Z.reshape(Nlat, Nlat))
     plt.show()
+
+
+# Old confounder code:
+# means = np.random.choice(np.arange(-2 * self.D, 2 * self.D + 1, 1, dtype=int),
+                            # size=self.D, replace=False)
+# X = np.zeros((self.N, self.D))
+# for d in range(self.D):
+    # X[:, d] = np.random.normal(loc=means[d], scale=x_sd[d], size=(self.N,))
+    # X[:, d] = np.dot(np.linalg.inv(np.eye(self.N) - x_sp * W), X[:, d])
+

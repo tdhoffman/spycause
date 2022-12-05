@@ -13,15 +13,10 @@ parameters {
   real<lower=0> sigma;  // SD of outcome
 }
 
-// transformed parameters {
-// real sigma = sqrt(sigma2);  // SD, required for parametrizing the likelihood
-// }
-
 model {
   y ~ normal(X*beta + Z*tau, sigma);
 
   tau ~ normal(0, 5);
   beta ~ normal(0, 5);
   sigma ~ exponential(1);
-  //sigma2 ~ cauchy(0, 5);
 }

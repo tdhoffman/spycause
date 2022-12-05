@@ -202,16 +202,17 @@ class ICAR(RegressorMixin, LinearModel):
 
         # Process weights matrix
         if type(self.w) == WeightsType:
-            w = self.w.full()[0]
+            node1 = self.w.to_adjlist()['focal'].values + 1
+            node2 = self.w.to_adjlist()['neighbor'].values + 1
+            N_edges = int(self.w.full()[0].sum())
         else:
-            w = self.w
-        W_n = w[np.triu_indices(N)].sum(dtype=np.int64)  # number of adjacent region pairs
+            raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
 
         with open(self._stanf, "r") as f:
             model_code = f.read()
 
         model_data = {"N": N, "D": D, "K": K, "X": X, "y": y, "Z": Z,
-                      "W": w, "W_n": W_n}
+                      "N_edges": N_edges, "node1": node1, "node2": node2}
         posterior = stan.build(model_code, data=model_data)
         self.stanfit_ = posterior.sample(num_chains=nchains,
                                          num_samples=nsamples,
@@ -226,7 +227,7 @@ class ICAR(RegressorMixin, LinearModel):
         else:
             self.coef_ = self.results_[[f"beta.{d+1}" for d in range(D)]].mean()
         self.ate_ = self.results_[[f"tau.{i+1}" for i in range(K)]].mean()
-        self.indir_coef_ = self.results_["rho"].mean()
+        self.indir_coef_ = self.results_["sd_r"].mean()
         return self
 
     def score(self, X, y, Z):
@@ -273,9 +274,9 @@ class Joint(RegressorMixin, LinearModel):
 
         # Process weights matrix
         if type(self.w) == WeightsType:
-            node1 = self.w.to_adjlist()['focal']
-            node2 = self.w.to_adjlist()['neighbor']
-            w = self.w.full()[0]
+            node1 = self.w.to_adjlist()['focal'].values + 1
+            node2 = self.w.to_adjlist()['neighbor'].values + 1
+            N_edges = int(self.w.full()[0].sum())
         else:
             raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
 
@@ -283,7 +284,7 @@ class Joint(RegressorMixin, LinearModel):
             model_code = f.read()
 
         model_data = {"N": N, "D": D, "K": K, "X": X, "y": y, "Z": Z,
-                      "W": w, "node1": node1.values + 1, "node2": node2.values + 1}
+                      "N_edges": N_edges, "node1": node1, "node2": node2}
         posterior = stan.build(model_code, data=model_data)
         self.stanfit_ = posterior.sample(num_chains=nchains,
                                          num_samples=nsamples,
