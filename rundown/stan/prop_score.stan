@@ -14,9 +14,7 @@ data {
 }
 
 transformed data {
-  if (K == 2) {
-    vector[N] Zlag = W * Z;
-  }
+  vector[N] Zvec = to_vector(Z);
 }
 
 parameters {
@@ -42,9 +40,10 @@ model {
   // Likelihoods
   Z ~ bernoulli(pi);
   if (K == 2) {
-    Y ~ normal(Z*tau[1] + Zlag*tau[2] + X*beta + sd_u*u + psi*sd_v*v, sigma);
+    vector[N] Zlag = W * Zvec;
+    Y ~ normal(Zvec*tau[1] + Zlag*tau[2] + X*beta + sd_u*u + psi*sd_v*v, sigma);
   } else {
-    Y ~ normal(Z*tau + X*beta + sd_u*u + psi*sd_v*v, sigma);
+    Y ~ normal(Zvec*tau[1] + X*beta + sd_u*u + psi*sd_v*v, sigma);
   }
 
   // Priors

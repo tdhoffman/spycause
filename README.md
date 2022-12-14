@@ -151,25 +151,25 @@ and only implements a nonlinear functional form for Y.
 
 
 # Models
-| Name  | Spatial confounding | Implemented?       | Tested?            |
-|:-----:|:--------------------|:------------------:|:------------------:|
-| OLS+X | none                | :heavy_check_mark: | :heavy_check_mark: |
-| OLS+P | none                | :heavy_check_mark: | :heavy_check_mark: |
-| CAR+X | unobserved          | :heavy_check_mark: | :heavy_check_mark: |
-| CAR+P | unobserved          | :heavy_check_mark: | :heavy_check_mark: |
-| ICAR+X| unobserved          | :heavy_check_mark: |                    |
-| ICAR+P| unobserved          | :heavy_check_mark: |                    |
-| Joint | unobserved          | :heavy_check_mark: |                    |
-
-(Plus interference-adjusted versions of all of these.)
+| Name  | Spatial confounding | Interference | Implemented?       | Tested?            |
+|:-----:|:--------------------|:------------:|:------------------:|:------------------:|
+| OLS+X | none                | none         | :heavy_check_mark: | :heavy_check_mark: |
+| OLS+P | none                | none         | :heavy_check_mark: | :heavy_check_mark: |
+| CAR+X | unobserved          | none         | :heavy_check_mark: | :heavy_check_mark: |
+| CAR+P | unobserved          | none         | :heavy_check_mark: | :heavy_check_mark: |
+| ICAR+X| unobserved          | none         | :heavy_check_mark: | :heavy_check_mark: |
+| ICAR+P| unobserved          | none         | :heavy_check_mark: | :heavy_check_mark: |
+| Joint | unobserved          | none         | :heavy_check_mark: | :heavy_check_mark: |
+| OLS+X | none                | linear       |                    |                    |
+| OLS+P | none                | linear       |                    |                    |
+| CAR+X | unobserved          | linear       |                    |                    |
+| CAR+P | unobserved          | linear       |                    |                    |
+| ICAR+X| unobserved          | linear       |                    |                    |
+| ICAR+P| unobserved          | linear       |                    |                    |
+| Joint | unobserved          | linear       |                    |                    |
 
 Here, "+X" refers to including all the nonspatial confounders, while "+P" refers to just including treatment and propensity score.
 We may not end up using the CAR models for simplicity (ICAR is much better known), but I anticipate the exact sparse CAR models being able to capture spatial structure better.
-
-### TODO 11/29/2022:
-- ICAR wrapper
-- Flesh out joint -- stan code for treatment and lag
-- tests using `Simulator`
 
 ## Model development
 Interference adjustments come in the form of including a lag of the treatment variable in the outcome model. As such, the interference adjustment is implemented as a `Transformer`, a preprocessing step to be done prior to fitting a model.

@@ -261,10 +261,15 @@ class Joint(RegressorMixin, LinearModel):
         return base
 
     def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
+        """
+        Interference adjustment is going to be tricky here
+        Stan doesn't like polymorphism
+        """
+        
         N, D = X.shape
-        if len(Z.shape) < 1:
-            Z = Z.reshape(-1, 1)
-        K = Z.shape[1]
+        if len(Z.shape) > 1:
+            Z = Z.flatten()
+        K = 1  # Z.shape[1]  fix later
 
         if len(y.shape) > 1:
             y = y.flatten()
@@ -277,13 +282,14 @@ class Joint(RegressorMixin, LinearModel):
             node1 = self.w.to_adjlist()['focal'].values + 1
             node2 = self.w.to_adjlist()['neighbor'].values + 1
             N_edges = int(self.w.full()[0].sum())
+            W = self.w.full()[0]
         else:
             raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
 
         with open(self._stanf, "r") as f:
             model_code = f.read()
 
-        model_data = {"N": N, "D": D, "K": K, "X": X, "y": y, "Z": Z,
+        model_data = {"N": N, "D": D, "K": K, "X": X, "Y": y, "Z": Z, "W": W,
                       "N_edges": N_edges, "node1": node1, "node2": node2}
         posterior = stan.build(model_code, data=model_data)
         self.stanfit_ = posterior.sample(num_chains=nchains,
@@ -299,7 +305,7 @@ class Joint(RegressorMixin, LinearModel):
         else:
             self.coef_ = self.results_[[f"beta.{d+1}" for d in range(D)]].mean()
         self.ate_ = self.results_[[f"tau.{i+1}" for i in range(K)]].mean()
-        self.indir_coef_ = self.results_["rho"].mean()
+        # self.indir_coef_ = self.results_["rho"].mean()
         return self
 
 
