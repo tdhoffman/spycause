@@ -15,14 +15,14 @@ y_sd = 0.1
 beta = np.array([[0.5, -1]]).T
 tau = 2
 ucar_sd = 1
-vcar_sd = 1
+vcar_sd = 0
 rho = 0.9
 W = lat2W(Nlat, Nlat)
 
 ## Generate data from CARSimulator
 sim = rd.CARSimulator(Nlat, D, sp_confound=W)
 X, Y, Z = sim.simulate(treat=tau, y_conf=beta, x_sd=x_sd, y_sd=y_sd, ucar_sd=ucar_sd, vcar_sd=vcar_sd,
-                       ucar_str=rho, vcar_str=rho)
+                       ucar_str=rho, vcar_str=0)
 
 ## Fit model
 model = rd.ICAR(w=W, fit_intercept=False)

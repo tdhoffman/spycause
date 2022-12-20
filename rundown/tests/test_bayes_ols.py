@@ -13,12 +13,14 @@ beta = np.array([[0.5, -1]]).T
 tau = 2
 
 ## Generate data
-sim = rd.Simulator(Nlat, D)
-X, Y, Z = sim.simulate(treat=tau, yconf=beta, x_sd=x_sd, eps_sd=y_sd)
+sim = rd.CARSimulator(Nlat, D)
+X, Y, Z = sim.simulate(treat=tau, y_conf=beta, x_sd=x_sd, y_sd=y_sd)
 
-## Fit model
+## Fit model with covariates
 model = rd.BayesOLS(fit_intercept=False)
 model = model.fit(X, Y, Z, save_warmup=False)
+
+## Fit model with prop score
 
 ## Results
 print(model.ate_)
@@ -28,8 +30,9 @@ print(model.score(X, Y, Z))
 ## Add interference
 interf_eff = 10
 W = lat2W(Nlat, Nlat, rook=False)
-intsim = rd.Simulator(Nlat, D, interference=W)
-X, Y, Z = intsim.simulate(treat=tau, yconf=beta, x_sd=x_sd, eps_sd=y_sd, interf=interf_eff)
+W.transform = 'r'
+intsim = rd.CARSimulator(Nlat, D, interference=W)
+X, Y, Z = intsim.simulate(treat=tau, y_conf=beta, x_sd=x_sd, y_sd=y_sd, interf=interf_eff)
 
 ## Interference adjustment
 # pipe = Pipeline([("interference", rd.InterferenceAdj()), ("model", rd.BayesOLS)])
@@ -44,7 +47,7 @@ nointmodel = nointmodel.fit(X, Y, Z, nsamples=3000, save_warmup=False)
 
 ## Results
 # nointmodel has bias in tau and the betas are definitely off (all by about 0.2)
-# intmodel gets everything basically right except interference effect (only gets about 10%)
+# intmodel gets everything right
 print(intmodel.ate_)
 print(intmodel.coef_)
 print(nointmodel.ate_)

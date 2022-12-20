@@ -138,7 +138,8 @@ class Simulator:
         X = np.dot(np.linalg.inv(np.eye(self.N) - x_sp * W), X)
 
         # Set up CAR terms for spatial confounding on Y and Z
-        self.sp_confound.transform = "r"
+        if self.sp_confound is not None:
+            self.sp_confound.transform = "r"
 
         Z = np.random.binomial(1, self._create_Z(X, zconf, sp_zconf, **kwargs)).reshape(-1, 1)
         Y = self._create_Y(X, Z, treat, yconf, sp_yconf, interf, eps_sd, **kwargs)
@@ -198,7 +199,7 @@ class Simulator:
 
 class CARSimulator(Simulator):
     def simulate(self, treat=0.5, z_conf=0.25, y_conf=0.5, interf=0, x_sd=1, x_sp=0.9,
-                 ucar_sd=2, ucar_str=0.9, vcar_sd=2, vcar_str=0.9, balance=0.5,
+                 ucar_sd=2, ucar_str=0.95, vcar_sd=2, vcar_str=0.95, balance=0.5,
                  y_sd=0.1, **kwargs):
         """
         Simulate data based on some parameters.
@@ -225,9 +226,9 @@ class CARSimulator(Simulator):
                         SD of CAR term for confounding on Y
         vcar_sd       : float, default 2
                         SD of CAR term for confounding on Z
-        ucar_str      : float, default 0.9
+        ucar_str      : float, default 0.95
                         strength of spatial association for confounding on Y
-        vcar_str      : float, default 0.9
+        vcar_str      : float, default 0.95
                         strength of spatial association for confounding on Z
         balance       : float, default 0.5
                         balancing factor that parametrizes the shared
@@ -257,16 +258,20 @@ class CARSimulator(Simulator):
         X = np.dot(np.linalg.inv(np.eye(self.N) - x_sp * W), X)
 
         # Set up CAR terms for spatial confounding on Y and Z
-        self.sp_confound.transform = "r"  # row standardize so we don't need to use row sums
-        cov_u = (ucar_sd**2)*np.linalg.solve(np.eye(self.N) - ucar_str*self.sp_confound.sparse,
-                                             np.eye(self.N))
-        cov_v = (vcar_sd**2)*np.linalg.solve(np.eye(self.N) - vcar_str*self.sp_confound.sparse,
-                                             np.eye(self.N))
-        U = np.dot(cov_u, np.random.normal(size=(self.N, 1)))
-        V = np.dot(cov_v, np.random.normal(size=(self.N, 1)))
+        if self.sp_confound is not None:
+            self.sp_confound.transform = "r"  # row standardize so we don't need to use row sums
+            cov_u = (ucar_sd**2)*np.linalg.solve(np.eye(self.N) - ucar_str*self.sp_confound.sparse,
+                                                 np.eye(self.N))
+            cov_v = (vcar_sd**2)*np.linalg.solve(np.eye(self.N) - vcar_str*self.sp_confound.sparse,
+                                                 np.eye(self.N))
+            U = np.dot(cov_u, np.random.normal(size=(self.N, 1)))
+            V = np.dot(cov_v, np.random.normal(size=(self.N, 1)))
+        else:
+            U = np.zeros((self.N, 1))
+            V = np.zeros((self.N, 1))
 
         # Make propensity scores and generate Z
-        prop_scores = self._create_Z(X, U, V, z_conf, balance, **kwargs)
+        prop_scores = self._create_Z(X, U, V, z_conf, balance)
         Z = np.random.binomial(1, prop_scores).reshape(-1, 1)
 
         # Make means and generate Y
