@@ -14,6 +14,7 @@ CONTENTS:
 import os
 import stan
 import numpy as np
+import arviz as az
 from libpysal.weights import W as WeightsType
 from sklearn.base import RegressorMixin
 from sklearn.linear_model._base import LinearModel
@@ -85,6 +86,13 @@ class BayesOLS(RegressorMixin, LinearModel):
 
         y_pred = self.predict(X, Z)
         return float(pearsonr(y.flatten(), y_pred.flatten())[0]**2)
+
+    def waic(self):
+        """
+        Computes WAIC for the model.
+        """
+
+        return az.waic(self.stanfit_)
 
 
 class CAR(RegressorMixin, LinearModel):
@@ -176,14 +184,14 @@ class ICAR(RegressorMixin, LinearModel):
         return self._decision_function(X, Z)
 
     def _decision_function(self, X, Z):
-        # TODO REPLACE THIS WITH A CAR PREDICTION
-        # IS IT THE SAME AS FOR SAR?
         check_is_fitted(self)
 
         X = self._validate_data(X, accept_sparse=True, reset=False)
-        base = safe_sparse_dot(
-            np.linalg.inv(np.eye(self.w.n) - self.indir_coef_ * self.w.full()[0]),
-            safe_sparse_dot(X, self.coef_.T, dense_output=True), dense_output=True)
+        eps = np.random.random(size=(X.shape[0],))
+        # eps = np.random.normal(size=(X.shape[0],))
+        U = safe_sparse_dot(np.linalg.inv(np.eye(self.w.n) - self.w.full()[0]), eps, dense_output=True)
+        base = safe_sparse_dot(X, self.coef_.T, dense_output=True) + \
+            safe_sparse_dot(Z, self.ate_.T, dense_output=True) + U
         if self.fit_intercept:
             base += self.intercept_
         return base

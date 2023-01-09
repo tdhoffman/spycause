@@ -128,8 +128,8 @@ class Simulator:
         if np.ndim(x_sd) == 0:
             x_sd = np.repeat(x_sd, self.D)
 
-        # Confounders -- keep them N(0, x_sd) so it's easier for Stan
-        X = np.random.normal(loc=0, scale=x_sd, size=(self.N, self.D))
+        # Confounders
+        X = np.random.uniform(low=-x_sd, high=x_sd, size=(self.N, self.D))
 
         # Create Queen weights and give X a little autocorrelation
         W = weights.lat2W(self.Nlat, self.Nlat, rook=False)
@@ -248,8 +248,10 @@ class CARSimulator(Simulator):
         if np.ndim(y_conf) == 0:
             y_conf = y_conf*np.ones((self.D, 1))
 
-        # Confounders -- keep them N(0, x_sd) so it's easier for Stan
-        X = np.random.normal(loc=0, scale=x_sd.flatten(), size=(self.N, self.D))
+        # Confounders
+        X = np.zeros((self.N, self.D))
+        for d in range(self.D):
+            X[:, d] = np.random.uniform(low=-x_sd[d], high=x_sd[d], size=(self.N,))
 
         # Create Queen weights and give X a little autocorrelation
         W = weights.lat2W(self.Nlat, self.Nlat, rook=False)

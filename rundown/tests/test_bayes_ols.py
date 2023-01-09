@@ -26,6 +26,7 @@ model = model.fit(X, Y, Z, save_warmup=False)
 print(model.ate_)
 print(model.coef_)
 print(model.score(X, Y, Z))
+print(model.waic())
 
 ## Add interference
 interf_eff = 10
@@ -52,4 +53,7 @@ print(intmodel.ate_)
 print(intmodel.coef_)
 print(nointmodel.ate_)
 print(nointmodel.coef_)
-# print(intmodel.score(X, Y, Z))  # doesn't work yet
+print(intmodel.score(X, Y, Zint))
+print(nointmodel.score(X, Y, Z))
+print(intmodel.waic())
+print(nointmodel.waic())
