@@ -91,6 +91,7 @@ class BayesOLS(RegressorMixin, LinearModel):
         """
         Computes WAIC for the model.
         """
+        check_is_fitted(self)
 
         return az.waic(self.stanfit_)
 
@@ -238,13 +239,13 @@ class ICAR(RegressorMixin, LinearModel):
         self.indir_coef_ = self.results_["sd_r"].mean()
         return self
 
-    def score(self, X, y, Z):
+    def waic(self):
         """
-        Computes pseudo R2 for the model.
+        Computes WAIC for the model.
         """
 
-        y_pred = self.predict(X, Z)
-        return float(pearsonr(y.flatten(), y_pred.flatten())[0]**2)
+        check_is_fitted(self)
+        return az.waic(self.stanfit_)
 
 class Joint(RegressorMixin, LinearModel):
     def __init__(self, w=None, fit_intercept=True):
@@ -372,3 +373,11 @@ class SpatialIV(RegressorMixin, LinearModel):
         self.ate_ = self.results_[[f"tau.{i+1}" for i in range(K)]].mean()
         self.indir_coef_ = self.results_["rho"].mean()
         return self
+
+    def waic(self):
+        """
+        Computes WAIC for the model.
+        """
+
+        check_is_fitted(self)
+        return az.waic(self.stanfit_)

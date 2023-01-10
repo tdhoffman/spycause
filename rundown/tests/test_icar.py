@@ -33,3 +33,30 @@ model = model.fit(X, Y, Z, nsamples=4000)
 print(model.ate_)
 print(model.coef_)
 print(model.indir_coef_)
+
+
+## Add interference
+# not really doing too much to the problem -- i bet because it's too similar to W
+interf_eff = 10
+Wint = lat2W(Nlat, Nlat, rook=False)
+Wint.transform = 'r'
+intsim = rd.CARSimulator(Nlat, D, interference=Wint)
+X, Y, Z = intsim.simulate(treat=tau, y_conf=beta, x_sd=x_sd, y_sd=y_sd, ucar_sd=ucar_sd, vcar_sd=vcar_sd,
+                          ucar_str=rho, vcar_str=rho)
+
+## Interference adjustment
+intadj = rd.InterferenceAdj(w=Wint)
+Zint = intadj.transform(Z)
+
+## Estimate
+intmodel = rd.ICAR(w=W, fit_intercept=False)
+intmodel = intmodel.fit(X, Y, Zint, nsamples=3000, save_warmup=False)
+nointmodel = rd.ICAR(w=W, fit_intercept=False)
+nointmodel = nointmodel.fit(X, Y, Z, nsamples=3000, save_warmup=False)
+
+print(intmodel.ate_)
+print(intmodel.coef_)
+print(nointmodel.ate_)
+print(nointmodel.coef_)
+print(intmodel.waic())
+print(nointmodel.waic())
