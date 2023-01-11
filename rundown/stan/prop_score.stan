@@ -5,7 +5,7 @@ data {
   vector[N] Y;     // outcome variable
   matrix[N, D] X;  // confounders
   int Z[N];        // treatment variable
-  matrix[N, N] W;  // weights matrix
+  vector[N] Zlag;  // interference-adjusted Z (optional)
 
   // CAR model stuff
   int<lower=0> N_edges;                  // number of edges
@@ -32,27 +32,30 @@ parameters {
 transformed parameters {
   real<lower=0, upper=1> pi[N] = to_array_1d(inv_logit(X*alpha + sd_v*v));
   real sigma = sqrt(sigma2);
-  real<lower=0> tau_u = 1/sd_u^2;
-  real<lower=0> tau_v = 1/sd_v^2;
+  real<lower=0> tau_u = inv(sqrt(sd_u));
+  real<lower=0> tau_v = inv(sqrt(sd_v));
+
+  vector[N] mu;
+  if (K == 2) {
+    mu = Zvec*tau[1] + Zlag*tau[2] + X*beta + sd_u*u + psi*sd_v*v;
+  } else {
+    mu = Zvec*tau[1] + X*beta + sd_u*u + psi*sd_v*v;
+  }
 }
 
 model {
   // Likelihoods
   Z ~ bernoulli(pi);
-  if (K == 2) {
-    vector[N] Zlag = W * Zvec;
-    Y ~ normal(Zvec*tau[1] + Zlag*tau[2] + X*beta + sd_u*u + psi*sd_v*v, sigma);
-  } else {
-    Y ~ normal(Zvec*tau[1] + X*beta + sd_u*u + psi*sd_v*v, sigma);
-  }
+  Y ~ normal(mu, sigma);
 
   // Priors
   alpha ~ normal(0, 5);
   beta ~ normal(0, 5);
+  tau ~ normal(0, 5);
   psi ~ normal(0, 0.1);
-  sigma2 ~ inv_gamma(0.5, 0.005);
-  tau_u ~ gamma(3.2761, 1.81);  // Carlin WinBUGS priors on the ICAR terms
-  tau_v ~ gamma(3.2761, 1.81);
+  sigma ~ exponential(1);
+  tau_u ~ gamma(0.5, 0.005);
+  tau_v ~ gamma(0.5, 0.005);
   
   // CAR priors
   target += -0.5 * dot_self(u[node1] - u[node1]);
