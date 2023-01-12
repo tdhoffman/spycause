@@ -22,8 +22,12 @@ parameters {
   real<lower=0> sd_r;  // sd of ICAR effects
 }
 
+transformed parameters {
+  vector[N] mu = X*beta + Z*tau + sd_r*rho;
+}
+
 model {
-  y ~ normal(X*beta + Z*tau + sd_r*rho, sigma);
+  y ~ normal(mu, sigma);
 
   tau ~ normal(0, 10);
   beta ~ normal(0, 10);
@@ -33,4 +37,9 @@ model {
   // ICAR prior
   target += -0.5 * dot_self(rho[node1] - rho[node2]);
   sum(rho) ~ normal(0, 0.001*N);  // equivalent to mean(rho) ~ normal(0, 0.001)
+}
+
+generated quantities {
+  vector[N] log_likelihood;
+  for (i in 1:N) log_likelihood[i] = normal_lpdf(y[i] | mu[i], sigma);
 }

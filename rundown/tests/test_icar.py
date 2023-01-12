@@ -33,6 +33,7 @@ model = model.fit(X, Y, Z, nsamples=4000)
 print(model.ate_)
 print(model.coef_)
 print(model.indir_coef_)
+print(model.waic())
 
 
 ## Add interference
