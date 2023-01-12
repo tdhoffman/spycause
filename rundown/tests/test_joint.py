@@ -32,6 +32,7 @@ model = model.fit(X, Y, Z)
 ## Results
 print(model.ate_)
 print(model.coef_)
+print(model.waic())
 
 
 ## Add interference

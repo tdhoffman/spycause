@@ -66,3 +66,7 @@ model {
   sum(v) ~ normal(0, 0.001*N);
 }
 
+generated quantities {
+  vector[N] log_likelihood;
+  for (i in 1:N) log_likelihood[i] = normal_lpdf(Y[i] | mu[i], sigma);
+}

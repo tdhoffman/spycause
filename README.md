@@ -62,12 +62,12 @@ Note that it is always assumed that there is some spatial pattern $V$ in the tre
 | OLS+P | none                | none         |                    |                    |:heavy_check_mark:|                       |
 | ICAR+X| unobserved          | none         | :heavy_check_mark: | :heavy_check_mark: |:heavy_check_mark:|                       |
 | ICAR+P| unobserved          | none         |                    |                    |:heavy_check_mark:|                       |
-| Joint | unobserved          | none         | :heavy_check_mark: | :heavy_check_mark: |                  |                       |
+| Joint | unobserved          | none         | :heavy_check_mark: | :heavy_check_mark: |:heavy_check_mark:|                       |
 | OLS+X | none                | linear       | :heavy_check_mark: | :heavy_check_mark: |:heavy_check_mark:|                       |
 | OLS+P | none                | linear       |                    |                    |:heavy_check_mark:|                       |
 | ICAR+X| unobserved          | linear       | :heavy_check_mark: | :heavy_check_mark: |:heavy_check_mark:|                       |
 | ICAR+P| unobserved          | linear       |                    |                    |:heavy_check_mark:|                       |
-| Joint | unobserved          | linear       | :heavy_check_mark: | :heavy_check_mark: |                  |                       |
+| Joint | unobserved          | linear       | :heavy_check_mark: | :heavy_check_mark: |:heavy_check_mark:|                       |
 
 Here, "+X" refers to including all the nonspatial confounders, while "+P" refers to just including treatment and propensity score.
 We may not end up using the CAR models for simplicity (ICAR is much better known), but I anticipate the exact sparse CAR models being able to capture spatial structure better.
