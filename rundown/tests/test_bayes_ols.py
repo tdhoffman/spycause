@@ -1,3 +1,5 @@
+os.chdir('../..')
+
 import numpy as np
 import rundown as rd
 from libpysal.weights import lat2W

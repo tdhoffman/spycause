@@ -77,6 +77,7 @@ class BayesOLS(RegressorMixin, LinearModel):
         else:
             self.coef_ = self.results_[[f"beta.{d+1}" for d in range(D)]].mean()
         self.ate_ = self.results_[[f"tau.{i+1}" for i in range(K)]].mean()
+        self.idata_ = az.from_pystan(self.stanfit_, log_likelihood="log_likelihood")
         return self
 
     def score(self, X, y, Z):
@@ -93,7 +94,7 @@ class BayesOLS(RegressorMixin, LinearModel):
         """
         check_is_fitted(self)
 
-        return az.waic(self.stanfit_)
+        return az.waic(self.idata_)
 
 
 class CAR(RegressorMixin, LinearModel):

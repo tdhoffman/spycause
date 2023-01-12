@@ -20,3 +20,8 @@ model {
   beta ~ normal(0, 5);
   sigma ~ exponential(1);
 }
+
+generated quantities {
+  vector[N] log_likelihood;
+  for (i in 1:N) log_likelihood[i] = normal_lpdf(y[i] | X[i,]*beta + Z[i]*tau, sigma);
+}
