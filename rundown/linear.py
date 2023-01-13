@@ -35,7 +35,10 @@ class BayesOLS(RegressorMixin, LinearModel):
         return self.stanfit_['y_pred'].mean(1)
 
     def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
+        if len(X.shape) < 1:
+            X = X.reshape(-1, 1)
         N, D = X.shape
+
         if len(Z.shape) < 1:
             Z = Z.reshape(-1, 1)
         K = Z.shape[1]
@@ -99,7 +102,10 @@ class ICAR(RegressorMixin, LinearModel):
         return self.stanfit_['y_pred'].mean(1)
 
     def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
+        if len(X.shape) < 1:
+            X = X.reshape(-1, 1)
         N, D = X.shape
+
         if len(Z.shape) < 1:
             Z = Z.reshape(-1, 1)
         K = Z.shape[1]
@@ -176,7 +182,10 @@ class Joint(RegressorMixin, LinearModel):
         Stan doesn't like polymorphism
         """
 
+        if len(X.shape) < 1:
+            X = X.reshape(-1, 1)
         N, D = X.shape
+
         K = Z.shape[1]
         if len(Z.shape) > 1 and Z.shape[1] > 1:
             Zlag = Z[:, 1].flatten()

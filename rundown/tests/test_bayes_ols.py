@@ -22,7 +22,18 @@ X, Y, Z = sim.simulate(treat=tau, y_conf=beta, x_sd=x_sd, y_sd=y_sd)
 model = rd.BayesOLS(fit_intercept=False)
 model = model.fit(X, Y, Z, save_warmup=False)
 
-## Fit model with prop score
+## Add nonspatial prop score preprocessing
+propadj = rd.PropEst()
+pi_hat = propadj.fit_transform(X, Z)
+
+## Fit model
+propmodel = rd.BayesOLS(fit_intercept=False)
+propmodel = propmodel.fit(pi_hat, Y, Z, nsamples=4000)
+
+## Results
+print(propmodel.ate_)
+print(propmodel.coef_)
+print(propmodel.waic())
 
 ## Results
 print(model.ate_)
@@ -59,3 +70,21 @@ print(intmodel.score(X, Y, Zint))
 print(nointmodel.score(X, Y, Z))
 print(intmodel.waic())
 print(nointmodel.waic())
+
+
+## Add nonspatial prop score preprocessing
+propadj = rd.PropEst()
+pi_hat = propadj.fit_transform(X, Z)
+
+## Add interference adjustment
+intadj = rd.InterferenceAdj(w=W)
+Zint = intadj.transform(Z)
+
+## Fit model
+propmodel = rd.BayesOLS(fit_intercept=False)
+propmodel = propmodel.fit(pi_hat, Y, Z, nsamples=4000)
+
+## Results
+print(propmodel.ate_)
+print(propmodel.coef_)
+print(propmodel.waic())
