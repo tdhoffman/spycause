@@ -1,3 +1,10 @@
+__author__ = "Tyler D. Hoffman cause@tdhoffman.com"
+
+"""
+- Exact sparse CAR model via CAR
+- Spatial instrumental variables via SpatialIV (UNFINISHED)
+"""
+
 import os
 import stan
 import numpy as np
