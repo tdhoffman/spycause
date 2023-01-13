@@ -5,10 +5,8 @@ Spatial confounding adjustments for causal inference.
 All classes implement linear models with explicit treatment variable.
 CONTENTS:
 - Bayesian OLS estimation via BayesOLS
-- Exact sparse CAR model via CAR
 - Intrinsic CAR model via ICAR
 - Joint outcome and treatment model via Joint
-- Spatial instrumental variables via SpatialIV (UNFINISHED)
 """
 
 import os
@@ -163,7 +161,7 @@ class Joint(RegressorMixin, LinearModel):
     def __init__(self, w=None, fit_intercept=True):
         self.w = w
         self.fit_intercept = fit_intercept
-        self._stanf = os.path.join(_package_directory, "stan", "prop_score.stan")
+        self._stanf = os.path.join(_package_directory, "stan", "joint.stan")
 
     def predict(self):
         """

@@ -1,8 +1,12 @@
 __author__ = "Tyler D. Hoffman cause@tdhoffman.com"
 
 """
-Spatial interference adjustments for causal inference.
-Basically just include a lag of the treatment variables
+Adjustments for spatial causal inference.
+CONTENTS:
+- Spatial interference adjustment for causal inference. 
+  Adds a lag of the treatment variables according to the specified interference matrix.
+- First stage propensity score estimator. Include the results of this in a second
+  stage estimator for the outcome.
 """
 
 import numpy as np
@@ -32,3 +36,17 @@ class InterferenceAdj(BaseEstimator, TransformerMixin):
             weights = self.w
 
         return np.hstack((X, np.dot(weights, X)))
+
+
+class PropEst(BaseEstimator, TransformerMixin):
+    """
+    Estimates propensity scores prior to fitting a model.
+    """
+
+    def __init__(self, w=None, fit_intercept=False):
+        self.w = w
+        self.fit_intercept = fit_intercept
+
+    def fit(self, X, Z=None):
+        if len(X.shape) < 2:  # ensure column vector
+            X = X.reshape(-1, 1)
