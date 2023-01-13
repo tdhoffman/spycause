@@ -32,9 +32,34 @@ model = model.fit(X, Y, Z, nsamples=4000)
 ## Results
 print(model.ate_)
 print(model.coef_)
-print(model.indir_coef_)
 print(model.waic())
 
+
+## Add nonspatial prop score preprocessing
+propadj = rd.PropEst(bs_df=5)
+pi_hat = propadj.fit_transform(X, Z)
+
+## Fit model
+propmodel = rd.ICAR(w=W, fit_intercept=False)
+propmodel = propmodel.fit(pi_hat, Y, Z, nsamples=4000)
+
+## Results
+print(propmodel.ate_)
+print(propmodel.coef_)
+print(propmodel.waic())
+
+## Add spatial prop score preprocessing
+propadj = rd.PropEst(w=W, bs_df=5)
+pi_hat = propadj.fit_transform(X, Z)
+
+## Fit model
+propmodel = rd.ICAR(w=W, fit_intercept=False)
+propmodel = propmodel.fit(pi_hat, Y, Z, nsamples=4000)
+
+## Results
+print(propmodel.ate_)
+print(propmodel.coef_)
+print(propmodel.waic())
 
 ## Add interference
 # not really doing too much to the problem -- i bet because it's too similar to W
@@ -61,3 +86,18 @@ print(nointmodel.ate_)
 print(nointmodel.coef_)
 print(intmodel.waic())
 print(nointmodel.waic())
+
+## Add nonspatial prop score preprocessing and interference
+propadj = rd.PropEst(bs_df=5)
+pi_hat = propadj.fit_transform(X, Z)
+
+## Interference adjustment
+intadj = rd.InterferenceAdj(w=Wint)
+Zint = intadj.transform(Z)
+
+## Estimate
+intmodel = rd.ICAR(w=W, fit_intercept=False)
+intmodel = intmodel.fit(X, Y, Zint, nsamples=3000, save_warmup=False)
+print(intmodel.ate_)
+print(intmodel.coef_)
+print(intmodel.waic())

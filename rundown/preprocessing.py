@@ -55,9 +55,9 @@ class PropEst(BaseEstimator, TransformerMixin):
         self.fit_intercept = fit_intercept
         self.bs_df = bs_df
 
-    def fit(self, X, Z=None, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
-        if len(Z.shape) < 1:
-            Z = Z.reshape(-1, 1)
+    def fit(self, X, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
+        if len(Z.shape) > 1:
+            Z = Z.flatten()
 
         N, D = X.shape
         if self.fit_intercept:
@@ -65,21 +65,21 @@ class PropEst(BaseEstimator, TransformerMixin):
             D += 1
 
         if type(self.w) == WeightsType:
-            weights = self.w.full()[0]
             node1 = self.w.to_adjlist()['focal'].values + 1
             node2 = self.w.to_adjlist()['neighbor'].values + 1
             N_edges = len(node1)
             self._stanf = os.path.join(_package_directory, "stan", "spatial_logit.stan")
+            model_data = {"N": N, "D": D, "X": X, "Z": Z,
+                        "N_edges": N_edges, "node1": node1, "node2": node2}
         elif type(self.w) == np.ndarray:
             raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
         else:
             self._stanf = os.path.join(_package_directory, "stan", "logit.stan")
+            model_data = {"N": N, "D": D, "X": X, "Z": Z}
 
         with open(self._stanf, "r") as f:
             model_code = f.read()
 
-        model_data = {"N": N, "D": D, "X": X, "Z": Z,
-                      "N_edges": N_edges, "node1": node1, "node2": node2}
         posterior = stan.build(model_code, data=model_data)
         self.stanfit_ = posterior.sample(num_chains=nchains,
                                          num_samples=nsamples,
@@ -93,5 +93,9 @@ class PropEst(BaseEstimator, TransformerMixin):
 
         pi_hat = self.stanfit_['pi_hat'].mean(1)
         if self.bs_df is not None:
-            pi_hat = bs(pi_hat, degree=self.bs_df)
+            pi_hat = bs(pi_hat, df=self.bs_df)
         return pi_hat
+
+    def fit_transform(self, X, Z, **kwargs):
+        self.fit(X, Z, **kwargs)
+        return self.transform()

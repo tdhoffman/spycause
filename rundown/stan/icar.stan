@@ -10,6 +10,7 @@ data {
   int<lower=1> N_edges;                  // number of edges
   int<lower=1, upper=N> node1[N_edges];  // node1[i] adjacent to node2[i]
   int<lower=1, upper=N> node2[N_edges];  // and node1[i] < node2[i]
+  vector[N_edges] weights;               // weight for the edge
 }
 
 parameters {
@@ -35,7 +36,7 @@ model {
   sd_r ~ gamma(3.2761, 1.81);  // Carlin WinBUGS prior on the ICAR term
 
   // ICAR prior
-  target += -0.5 * dot_self(rho[node1] - rho[node2]);
+  target += -0.5 * weights * dot_self(rho[node1] - rho[node2]);
   sum(rho) ~ normal(0, 0.001*N);  // equivalent to mean(rho) ~ normal(0, 0.001)
 }
 

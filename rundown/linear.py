@@ -114,6 +114,7 @@ class ICAR(RegressorMixin, LinearModel):
         if type(self.w) == WeightsType:
             node1 = self.w.to_adjlist()['focal'].values + 1
             node2 = self.w.to_adjlist()['neighbor'].values + 1
+            weights = self.w.to_adjlist()['weight'].values
             N_edges = len(node1)
         else:
             raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
@@ -122,7 +123,7 @@ class ICAR(RegressorMixin, LinearModel):
             model_code = f.read()
 
         model_data = {"N": N, "D": D, "K": K, "X": X, "y": y, "Z": Z,
-                      "N_edges": N_edges, "node1": node1, "node2": node2}
+                      "N_edges": N_edges, "node1": node1, "node2": node2, "weights": weights}
         posterior = stan.build(model_code, data=model_data)
         self.stanfit_ = posterior.sample(num_chains=nchains,
                                          num_samples=nsamples,
@@ -137,7 +138,6 @@ class ICAR(RegressorMixin, LinearModel):
         else:
             self.coef_ = self.results_[[f"beta.{d+1}" for d in range(D)]].mean().values
         self.ate_ = self.results_[[f"tau.{i+1}" for i in range(K)]].mean().values
-        self.indir_coef_ = self.results_["sd_r"].mean()
         self.idata_ = az.from_pystan(self.stanfit_, log_likelihood="log_likelihood")
         return self
 
