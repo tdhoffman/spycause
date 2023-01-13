@@ -24,4 +24,6 @@ model {
 generated quantities {
   vector[N] log_likelihood;
   for (i in 1:N) log_likelihood[i] = normal_lpdf(y[i] | X[i,]*beta + Z[i]*tau, sigma);
+
+  real y_pred[N] = normal_rng(X*beta + Z*tau, sigma);
 }
