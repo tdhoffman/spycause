@@ -41,5 +41,9 @@ model {
 
 generated quantities {
   vector[N] log_likelihood;
-  for (i in 1:N) log_likelihood[i] = normal_lpdf(y[i] | mu[i], sigma);
+  vector[N] y_pred;
+  for (i in 1:N) {
+    log_likelihood[i] = normal_lpdf(y[i] | mu[i], sigma);
+    y_pred[i] = normal_rng(mu[i], sigma);
+  }
 }
