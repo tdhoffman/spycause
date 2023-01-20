@@ -60,4 +60,6 @@ Of course, one could run these models with higher powered configurations, but th
 **TODO** update this table with final `nchains` and `nsamples`
 
 # Experiments
-
+Create a massive hypercube and run everything, recording bias and diagnostic values.
+It doesn't look like these simulations will be too intensive, even though we'll be doing a lot of them, so this strategy should just work.
+As a final touch, we can krige or otherwise interpolate the results to get an idea of what the rest of the landscape looks like.
