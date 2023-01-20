@@ -2,6 +2,7 @@ os.chdir('../..')
 
 import numpy as np
 import rundown as rd
+import arviz as az
 from libpysal.weights import lat2W
 from sklearn.pipeline import Pipeline
 

@@ -20,3 +20,26 @@ The choices of $W_I$ also correspond to various versions of interference: a regi
 |$\phi$| `balance` | Balancing factor that parametrizes the shared spatial confounding between Y and Z | $[0, 1]$ | $[0, 1]$ | $[0, 1]$ |
 | $W_C$ | `w` (in `simulator.py`) | Weights matrix for spatial confounding | {binary contiguity, distance-based, region-based}| same as domain | same as domain |
 | $W_I$ | `w` (in `preprocessing.py`)| Weights matrix for interference | {binary contiguity, distance-based, region-based} | same as domain | same as domain |
+
+
+## Model parameters
+There are substantially fewer choices on the modeling side of things.
+- Choice of model: OLS, ICAR, or Joint.
+- Weights choice in model: binary contiguity, distance-based, region-based.
+- Kind of interference: binary contiguity, distance-based, region-based, or none.
+- Nonspatial conditioning set: propensity score (spatial or nonspatial model and level of smoothing) or confounders.
+
+## Fitting hyperparameters
+These are hyperparameters to be tuned for posterior convergence purposes, not to be studied in the manuscript.
+They will be controlled in the experiments.
+| Code name  | Description                             | Domain        | Chosen value |
+|:-----------|:----------------------------------------|:--------------|:------------:|
+| `nsamples` | Number of samples per chain             | $\mathbb{Z}_{\geq 0}$ |              |
+| `nwarmup`  | Number of samples for burn-in per chain | $\mathbb{Z}_{\geq 0}$ |              |
+| `save_warmup` | Flag for saving burn-in samples      | `True`, `False`|              |
+| `delta` | Target Metropolis acceptance rate | $(0, 1)$ | 0.8 |
+| `max_depth` | Max tree depth for NUTS | $\mathbb{Z}_{\geq 0}$ | 10 |
+
+
+# Experiments
+

@@ -13,6 +13,7 @@ import os
 import stan
 import numpy as np
 import arviz as az
+import matplotlib.pyplot as plt
 from libpysal.weights import W as WeightsType
 from sklearn.base import RegressorMixin
 from sklearn.linear_model._base import LinearModel
@@ -34,7 +35,8 @@ class BayesOLS(RegressorMixin, LinearModel):
         check_is_fitted(self)
         return self.stanfit_['y_pred'].mean(1)
 
-    def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
+    def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True,
+            delta=0.8, max_depth=10):
         if len(X.shape) < 1:
             X = X.reshape(-1, 1)
         N, D = X.shape
@@ -58,7 +60,9 @@ class BayesOLS(RegressorMixin, LinearModel):
         self.stanfit_ = posterior.sample(num_chains=nchains,
                                          num_samples=nsamples,
                                          num_warmup=nwarmup,
-                                         save_warmup=save_warmup)
+                                         save_warmup=save_warmup,
+                                         delta=delta,
+                                         max_depth=max_depth)
         self.results_ = self.stanfit_.to_frame()
 
         # Get posterior means
@@ -69,6 +73,7 @@ class BayesOLS(RegressorMixin, LinearModel):
             self.coef_ = self.results_[[f"beta.{d+1}" for d in range(D)]].mean()
         self.ate_ = self.results_[[f"tau.{i+1}" for i in range(K)]].mean()
         self.idata_ = az.from_pystan(self.stanfit_, log_likelihood="log_likelihood")
+        self.max_depth = max_depth
         return self
 
     def score(self, X, y, Z):
@@ -86,6 +91,39 @@ class BayesOLS(RegressorMixin, LinearModel):
         check_is_fitted(self)
 
         return az.waic(self.idata_)
+
+    def diagnostics(self, vis=False):
+        """
+        Return some diagnostics about the posterior convergence.
+        """
+
+        # Divergences
+        # divergences = self.stanfit_.get_sampler_params()["divergent__"]
+        # ndivergent = divergences.sum()
+        # nsamples = len(divergences)
+        # print(f"{ndivergent} of {nsamples} iterations ended with a divergence ({100*ndivergent/nsamples}%).")
+        # if ndivergent > 0:
+            # print("Increasing adapt_delta may remove the divergences.")
+
+        # Tree depth
+        # treedepths = self.stanfit_.get_sampler_params()["treedepth__"]
+        # nmaxdepths = (treedepths == self.max_depth).sum()
+        # print(f"{nmaxdepths} of {nsamples} iterations saturated the max tree depth ({100*nmaxdepths/nsamples}%).")
+        # if nmaxdepths > 0:
+            # print("See https://betanalpha.github.io/assets/case_studies/identifiability.html for more information.")
+
+        # ESS
+        self.esses = az.ess(self.idata_)
+
+        # Rhat
+        self.rhats = az.rhat(self.idata_)
+
+        # Energy
+        self.bfmis = az.bfmi(self.idata_)
+
+        if vis:
+            az.plot_trace(self.idata_)
+            az.plot_ess(self.idata_)
 
 
 class ICAR(RegressorMixin, LinearModel):

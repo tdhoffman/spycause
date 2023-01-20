@@ -70,7 +70,7 @@ class PropEst(BaseEstimator, TransformerMixin):
             N_edges = len(node1)
             self._stanf = os.path.join(_package_directory, "stan", "spatial_logit.stan")
             model_data = {"N": N, "D": D, "X": X, "Z": Z,
-                        "N_edges": N_edges, "node1": node1, "node2": node2}
+                          "N_edges": N_edges, "node1": node1, "node2": node2}
         elif type(self.w) == np.ndarray:
             raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
         else:
