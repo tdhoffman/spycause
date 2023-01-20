@@ -7,10 +7,11 @@ data {
   int Z[N];        // treatment variable
   vector[N] Zlag;  // interference-adjusted Z (optional)
 
-  // CAR model stuff
+  // ICAR stuff
   int<lower=0> N_edges;                  // number of edges
   int<lower=1, upper=N> node1[N_edges];  // node1[i] is adjacent to node2[i]
   int<lower=1, upper=N> node2[N_edges];  // and node1[i] < node2[i]
+  vector[N_edges] weights;               // weights for the edges
 }
 
 transformed data {
@@ -58,8 +59,8 @@ model {
   tau_v ~ gamma(0.5, 0.005);
   
   // CAR priors
-  target += -0.5 * dot_self(u[node1] - u[node1]);
-  target += -0.5 * dot_self(v[node1] - v[node2]);
+  target += -0.5 * weights * dot_self(u[node1] - u[node1]);
+  target += -0.5 * weights * dot_self(v[node1] - v[node2]);
 
   // Soft sum-to-zero constraint on spatial effects
   sum(u) ~ normal(0, 0.001*N);

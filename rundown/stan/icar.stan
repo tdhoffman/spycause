@@ -19,25 +19,26 @@ parameters {
   real<lower=0> sigma;  // SD of outcome
 
   // ICAR effects
-  vector[N] rho;   // spatially structured residuals
-  real<lower=0> sd_r;  // sd of ICAR effects
+  vector[N] u;   // spatially structured residuals
+  real<lower=0> sd_u;  // sd of ICAR effects
 }
 
 transformed parameters {
-  vector[N] mu = X*beta + Z*tau + sd_r*rho;
+  vector[N] mu = X*beta + Z*tau + sd_u*u;
+  real<lower=0> tau_u = inv(sqrt(sd_u));
 }
 
 model {
   y ~ normal(mu, sigma);
 
-  tau ~ normal(0, 10);
-  beta ~ normal(0, 10);
+  tau ~ normal(0, 5);
+  beta ~ normal(0, 5);
   sigma ~ exponential(1);
-  sd_r ~ gamma(3.2761, 1.81);  // Carlin WinBUGS prior on the ICAR term
+  tau_u ~ gamma(0.5, 0.005);
 
   // ICAR prior
-  target += -0.5 * weights * dot_self(rho[node1] - rho[node2]);
-  sum(rho) ~ normal(0, 0.001*N);  // equivalent to mean(rho) ~ normal(0, 0.001)
+  target += -0.5 * weights * dot_self(u[node1] - u[node2]);
+  sum(u) ~ normal(0, 0.001*N);  // equivalent to mean(rho) ~ normal(0, 0.001)
 }
 
 generated quantities {

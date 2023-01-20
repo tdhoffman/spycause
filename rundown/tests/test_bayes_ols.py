@@ -41,6 +41,7 @@ print(model.ate_)
 print(model.coef_)
 print(model.score(X, Y, Z))
 print(model.waic())
+model.diagnostics()
 
 ## Add interference
 interf_eff = 10
