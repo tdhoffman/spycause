@@ -42,22 +42,22 @@ They will be controlled in the experiments.
 | `max_depth` | Max tree depth for NUTS | $\mathbb{Z}_{\geq 0}$ |
 
 Below are reasonable settings for the experiments.
-Of course, one could run these models with higher powered configurations, but these settings yield acceptable to superb convergence on all the diagnostic metrics.
+Of course, one could run these models with higher powered configurations, but these settings yield acceptable to superb convergence (depending on model) on all the diagnostic metrics.
 | Model | Interference | Conditioning set | `nsamples` | `nwarmup` | `nchains` | `save_warmup` | `delta` | `max_depth` |
 |:------|:-------------|:-----------------|:----------:|:---------:|:---------:|:-------------:|:-------:|:-----------:|
 | OLS   | none         | confounders      | 1000       | 1000      | 1         | False         | 0.8     | 10          |
 | OLS   | none         | propensity score | 1000       | 1000      | 1         | False         | 0.8     | 10          |
 | OLS   | rook         | confounders      | 1000       | 1000      | 1         | False         | 0.8     | 10          |
 | OLS   | rook         | propensity score | 1000       | 1000      | 1         | False         | 0.8     | 10          |
-| ICAR  | none         | confounders      | 1000       | 1000      |           | False         | 0.8     | 10          |
-| ICAR  | none         | propensity score | 1000       | 1000      |           | False         | 0.8     | 10          |
-| ICAR  | rook         | confounders      | 1000       | 1000      |           | False         | 0.8     | 10          |
-| ICAR  | rook         | propensity score | 1000       | 1000      |           | False         | 0.8     | 10          |
-| Joint | none         | confounders      | 1000       | 1000      |           | False         | 0.8     | 10          |
-| Joint | none         | propensity score | 1000       | 1000      |           | False         | 0.8     | 10          |
-| Joint | rook         | confounders      | 1000       | 1000      |           | False         | 0.8     | 10          |
-| Joint | rook         | propensity score | 1000       | 1000      |           | False         | 0.8     | 10          |
-
+| ICAR  | none         | confounders      | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| ICAR  | none         | propensity score | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| ICAR  | rook         | confounders      | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| ICAR  | rook         | propensity score | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| Joint | none         | confounders      | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| Joint | none         | propensity score | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| Joint | rook         | confounders      | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| Joint | rook         | propensity score | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+**TODO** update this table with final `nchains` and `nsamples`
 
 # Experiments
 
