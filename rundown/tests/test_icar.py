@@ -64,6 +64,7 @@ print(propmodel.waic())
 
 ## Add interference
 # not really doing too much to the problem -- i bet because it's too similar to W
+# actually i bet it's because i didn't put it in the signature!
 interf_eff = 10
 Wint = lat2W(Nlat, Nlat, rook=False)
 Wint.transform = 'r'

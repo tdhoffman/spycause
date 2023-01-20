@@ -35,13 +35,13 @@ class BayesOLS(RegressorMixin, LinearModel):
         check_is_fitted(self)
         return self.stanfit_['y_pred'].mean(1)
 
-    def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True,
+    def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=False,
             delta=0.8, max_depth=10):
-        if len(X.shape) < 1:
+        if len(X.shape) == 1:
             X = X.reshape(-1, 1)
         N, D = X.shape
 
-        if len(Z.shape) < 1:
+        if len(Z.shape) == 1:
             Z = Z.reshape(-1, 1)
         K = Z.shape[1]
 
@@ -109,13 +109,13 @@ class ICAR(RegressorMixin, LinearModel):
         check_is_fitted(self)
         return self.stanfit_['y_pred'].mean(1)
 
-    def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True,
+    def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=False,
             delta=0.8, max_depth=10):
-        if len(X.shape) < 1:
+        if len(X.shape) == 1:
             X = X.reshape(-1, 1)
         N, D = X.shape
 
-        if len(Z.shape) < 1:
+        if len(Z.shape) == 1:
             Z = Z.reshape(-1, 1)
         K = Z.shape[1]
 
@@ -191,14 +191,14 @@ class Joint(RegressorMixin, LinearModel):
         check_is_fitted(self)
         return self.stanfit_['y_pred'].mean(1)
 
-    def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True,
+    def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=False,
             delta=0.8, max_depth=10):
         """
         Interference adjustment is going to be tricky here
         Stan doesn't like polymorphism
         """
 
-        if len(X.shape) < 1:
+        if len(X.shape) == 1:
             X = X.reshape(-1, 1)
         N, D = X.shape
 

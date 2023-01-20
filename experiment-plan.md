@@ -32,13 +32,31 @@ There are substantially fewer choices on the modeling side of things.
 ## Fitting hyperparameters
 These are hyperparameters to be tuned for posterior convergence purposes, not to be studied in the manuscript.
 They will be controlled in the experiments.
-| Code name  | Description                             | Domain        | Chosen value |
-|:-----------|:----------------------------------------|:--------------|:------------:|
-| `nsamples` | Number of samples per chain             | $\mathbb{Z}_{\geq 0}$ |              |
-| `nwarmup`  | Number of samples for burn-in per chain | $\mathbb{Z}_{\geq 0}$ |              |
-| `save_warmup` | Flag for saving burn-in samples      | `True`, `False`|              |
-| `delta` | Target Metropolis acceptance rate | $(0, 1)$ | 0.8 |
-| `max_depth` | Max tree depth for NUTS | $\mathbb{Z}_{\geq 0}$ | 10 |
+| Code name  | Description                             | Domain        |
+|:-----------|:----------------------------------------|:--------------|
+| `nsamples` | Number of samples per chain             | $\mathbb{Z}_{\geq 0}$ |
+| `nwarmup`  | Number of samples for burn-in per chain | $\mathbb{Z}_{\geq 0}$ |
+| `nchains`  | Number of Markov chains to use for sampling | $\mathbb{Z}_{\geq 0}$ |
+| `save_warmup` | Flag for saving burn-in samples      | `True`, `False`|
+| `delta` | Target Metropolis acceptance rate | $(0, 1)$ |
+| `max_depth` | Max tree depth for NUTS | $\mathbb{Z}_{\geq 0}$ |
+
+Below are reasonable settings for the experiments.
+Of course, one could run these models with higher powered configurations, but these settings yield acceptable to superb convergence on all the diagnostic metrics.
+| Model | Interference | Conditioning set | `nsamples` | `nwarmup` | `nchains` | `save_warmup` | `delta` | `max_depth` |
+|:------|:-------------|:-----------------|:----------:|:---------:|:---------:|:-------------:|:-------:|:-----------:|
+| OLS   | none         | confounders      | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| OLS   | none         | propensity score | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| OLS   | rook         | confounders      | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| OLS   | rook         | propensity score | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+| ICAR  | none         | confounders      | 1000       | 1000      |           | False         | 0.8     | 10          |
+| ICAR  | none         | propensity score | 1000       | 1000      |           | False         | 0.8     | 10          |
+| ICAR  | rook         | confounders      | 1000       | 1000      |           | False         | 0.8     | 10          |
+| ICAR  | rook         | propensity score | 1000       | 1000      |           | False         | 0.8     | 10          |
+| Joint | none         | confounders      | 1000       | 1000      |           | False         | 0.8     | 10          |
+| Joint | none         | propensity score | 1000       | 1000      |           | False         | 0.8     | 10          |
+| Joint | rook         | confounders      | 1000       | 1000      |           | False         | 0.8     | 10          |
+| Joint | rook         | propensity score | 1000       | 1000      |           | False         | 0.8     | 10          |
 
 
 # Experiments
