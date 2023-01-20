@@ -18,5 +18,5 @@ The choices of $W_I$ also correspond to various versions of interference: a regi
 | $\rho_V$ | `vcar_str` | Strength of spatial association for spatial confounding on Z | $(0, 1)$ | $[0.5, 0.99]$| $[0.5, 0.99]$ |
 |$\sigma^2_V$|`vcar_sd`| Standard deviation of CAR term for confounding on Z | $(0, \infty)$ | $(0, 10)$ | $(0, 1]$ |
 |$\phi$| `balance` | Balancing factor that parametrizes the shared spatial confounding between Y and Z | $[0, 1]$ | $[0, 1]$ | $[0, 1]$ |
-| $W_C$ | `w` | Weights matrix for spatial confounding | {binary contiguity, distance-based, region-based}| same as domain | same as domain |
-| $W_I$ | `w` | Weights matrix for interference | {binary contiguity, distance-based, region-based} | same as domain | same as domain |
+| $W_C$ | `w` (in `simulator.py`) | Weights matrix for spatial confounding | {binary contiguity, distance-based, region-based}| same as domain | same as domain |
+| $W_I$ | `w` (in `preprocessing.py`)| Weights matrix for interference | {binary contiguity, distance-based, region-based} | same as domain | same as domain |
