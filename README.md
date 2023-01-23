@@ -84,22 +84,15 @@ We omit spatial instrumental variables (IVs) and geographic regression discontin
 Finally, we omit nonlinear models for simplicity, as I can't find any literature on them in the spatial setting and that means things are going to get complicated.
 These are good avenues for future work.
 
-# Data-model matrix
-| Data scenario | | |
-| :-----------: |-|-|
-|       1       | | |
-|       2       | | |
-|       3       | | |
-|       4       | | |
-|       5       | | |
-|       6       | | |
-|       7       | | |
-|       8       | | |
-|       9       | | |
-|      10       | | |
-|      11       | | |
-|      12       | | |
-|      13       | | |
-|      14       | | |
-|      15       | | |
-|      16       | | |
+## Running TODO
+- [] Finish simulator template:
+  - [] Generate weights matrices and figure out a way to select them in the loop (int array)
+  - [] Find best way to loop
+  - [] Choose what to save:
+    - [] full posteriors (why?)? point estimates and CIs? just biases for the ATE?
+    - [] wAICs? R2s from posterior predictives? other model fit stats?
+    - [] diagnostics?
+  - [] Do we want runtime diagnostic evaluation? Desired effects?
+  - [] Choose how to efficiently save results (dask? pandas?)
+  - [] Parallelize loop (possibly)
+- [] Copy simulator template for all settings: OLS+X (testing template), OLS+P, ICAR+X, ICAR+P, Joint

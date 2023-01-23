@@ -57,6 +57,7 @@ Of course, one could run these models with higher powered configurations, but th
 | Joint | none         | propensity score | 1000       | 1000      | 1         | False         | 0.8     | 10          |
 | Joint | rook         | confounders      | 1000       | 1000      | 1         | False         | 0.8     | 10          |
 | Joint | rook         | propensity score | 1000       | 1000      | 1         | False         | 0.8     | 10          |
+
 **TODO** update this table with final `nchains` and `nsamples`
 
 # Experiments
