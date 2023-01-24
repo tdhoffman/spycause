@@ -4,8 +4,8 @@ __author__ = "Tyler D. Hoffman cause@tdhoffman.com"
 Reusable diagnostics function for sampling procedures.
 """
 
-import numpy as np
 import arviz as az
+
 
 def diagnostics(model, params=["beta", "tau", "sigma"]):
     """
@@ -72,8 +72,15 @@ def diagnostics(model, params=["beta", "tau", "sigma"]):
         print("Rhat above 1.1: the chains have likely not mixed.")
 
     # Energy
+    bfmi_warning = False
     model.bfmi = az.bfmi(model.idata_)
-    if model.bfmi < 0.2:
-        print(f"BFMI = {model.bfmi} < 0.2. You may need to reparametrize your model.")
+    if hasattr(model.bfmi, "__len__"):
+        if (model.bfmi < 0.2).any():
+            bfmi_warning = True
+            print("BFMI under 0.2, may need to reparametrize your model.")
     else:
+        if model.bfmi < 0.2:
+            print(f"BFMI = {model.bfmi} < 0.2. You may need to reparametrize your model.")
+
+    if not bfmi_warning:
         print("BFMI indicated no pathological behavior.")
