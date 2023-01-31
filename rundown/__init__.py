@@ -1,4 +1,3 @@
 from .simulator import *
-from .cmd_linear import *
+from .linear import *
 from .preprocessing import *
-from .diagnostics import *

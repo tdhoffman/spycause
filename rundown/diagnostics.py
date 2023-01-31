@@ -43,7 +43,7 @@ def diagnostics(model, params=["beta", "tau", "sigma"]):
         else:
             if ratio < 0.001:
                 ess_warning = True
-                print(f"ESS/nsamples for parameter {param} is {ratio}.")
+                print(f"ESS/nsamples for parameter {param} is {ratio}, below 0.001.")
 
     if not ess_warning:
         print("ESS/nsamples looks reasonable for all parameters.")
@@ -57,9 +57,9 @@ def diagnostics(model, params=["beta", "tau", "sigma"]):
     for param in params:
         rhats = model.rhats[param].values
         if hasattr(rhats, "__len__"):
-            if (rhats < 1.1).any():
+            if (rhats > 1.1).any():
                 rhat_warning = True
-                print(f"Rhat for components of parameter {param} is above 1.1.")
+                print(f"Rhats for components of parameter {param} are {rhats}, above 1.1.")
         else:
             if rhats > 1.1:
                 rhat_warning = True
@@ -77,7 +77,7 @@ def diagnostics(model, params=["beta", "tau", "sigma"]):
     if hasattr(model.bfmi, "__len__"):
         if (model.bfmi < 0.2).any():
             bfmi_warning = True
-            print("BFMI under 0.2, may need to reparametrize your model.")
+            print("BFMIs are {model.bfmi}, under 0.2; may need to reparametrize your model.")
     else:
         if model.bfmi < 0.2:
             print(f"BFMI = {model.bfmi} < 0.2. You may need to reparametrize your model.")
