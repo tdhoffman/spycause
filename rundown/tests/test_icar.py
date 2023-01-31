@@ -33,7 +33,7 @@ model = model.fit(X, Y, Z, nsamples=4000)
 print(model.ate_)
 print(model.coef_)
 print(model.waic())
-model.diagnostics()
+print(model.diagnostics())
 
 
 ## Add nonspatial prop score preprocessing

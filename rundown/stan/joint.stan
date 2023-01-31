@@ -4,13 +4,13 @@ data {
   int K;           // 2 if interference-adjusted, 1 otherwise
   vector[N] Y;     // outcome variable
   matrix[N, D] X;  // confounders
-  int Z[N];        // treatment variable
+  array[N] int Z;        // treatment variable
   vector[N] Zlag;  // interference-adjusted Z (optional)
 
   // ICAR stuff
   int<lower=0> N_edges;                  // number of edges
-  int<lower=1, upper=N> node1[N_edges];  // node1[i] is adjacent to node2[i]
-  int<lower=1, upper=N> node2[N_edges];  // and node1[i] < node2[i]
+  array[N_edges] int<lower=1, upper=N> node1;  // node1[i] is adjacent to node2[i]
+  array[N_edges] int<lower=1, upper=N> node2;  // and node1[i] < node2[i]
   vector[N_edges] weights;               // weights for the edges
 }
 
@@ -31,7 +31,7 @@ parameters {
 }
 
 transformed parameters {
-  real<lower=0, upper=1> pi[N] = to_array_1d(inv_logit(X*alpha + sd_v*v));
+  array[N] real<lower=0, upper=1> pi = to_array_1d(inv_logit(X*alpha + sd_v*v));
   real sigma = sqrt(sigma2);
   real<lower=0> tau_u = inv(sqrt(sd_u));
   real<lower=0> tau_v = inv(sqrt(sd_v));

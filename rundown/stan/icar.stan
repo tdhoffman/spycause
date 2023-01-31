@@ -8,8 +8,8 @@ data {
 
   // ICAR stuff
   int<lower=1> N_edges;                  // number of edges
-  int<lower=1, upper=N> node1[N_edges];  // node1[i] adjacent to node2[i]
-  int<lower=1, upper=N> node2[N_edges];  // and node1[i] < node2[i]
+  array[N_edges] int<lower=1, upper=N> node1;  // node1[i] adjacent to node2[i]
+  array[N_edges] int<lower=1, upper=N> node2;  // and node1[i] < node2[i]
   vector[N_edges] weights;               // weight for the edge
 }
 

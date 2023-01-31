@@ -10,7 +10,7 @@ CONTENTS:
 """
 
 import os
-import stan
+from cmdstanpy import CmdStanModel
 import numpy as np
 from libpysal.weights import W as WeightsType
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -55,7 +55,8 @@ class PropEst(BaseEstimator, TransformerMixin):
         self.fit_intercept = fit_intercept
         self.bs_df = bs_df
 
-    def fit(self, X, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True):
+    def fit(self, X, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True,
+            delta=0.8, max_depth=10):
         if len(Z.shape) > 1:
             Z = Z.flatten()
 
@@ -74,27 +75,31 @@ class PropEst(BaseEstimator, TransformerMixin):
         elif type(self.w) == np.ndarray:
             raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
         else:
+
             self._stanf = os.path.join(_package_directory, "stan", "logit.stan")
             model_data = {"N": N, "D": D, "X": X, "Z": Z}
 
-        with open(self._stanf, "r") as f:
-            model_code = f.read()
+        model = CmdStanModel(stan_file=self._stanf)
+        self.stanfit_ = model.sample(data=model_data,
+                                     chains=nchains,
+                                     iter_warmup=nwarmup,
+                                     iter_sampling=nsamples,
+                                     save_warmup=save_warmup,
+                                     adapt_delta=delta,
+                                     max_treedepth=max_depth,
+                                     show_progress=True,
+                                     show_console=False)
+        self.results_ = self.stanfit_.draws_pd()
+        self.pi_hat = self.results_[[f'pi_hat[{d+1}]' for d in range(N)]].mean(axis=0).values
 
-        posterior = stan.build(model_code, data=model_data)
-        self.stanfit_ = posterior.sample(num_chains=nchains,
-                                         num_samples=nsamples,
-                                         num_warmup=nwarmup,
-                                         save_warmup=save_warmup)
-        self.results_ = self.stanfit_.to_frame()
         return self
 
     def transform(self):
         check_is_fitted(self)
 
-        pi_hat = self.stanfit_['pi_hat'].mean(1)
         if self.bs_df is not None:
-            pi_hat = bs(pi_hat, df=self.bs_df)
-        return pi_hat
+            self.pi_hat = bs(self.pi_hat, df=self.bs_df)
+        return self.pi_hat
 
     def fit_transform(self, X, Z, **kwargs):
         self.fit(X, Z, **kwargs)
