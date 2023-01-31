@@ -61,11 +61,11 @@ class BayesOLS(RegressorMixin, LinearModel):
 
         # Get posterior medians
         if self.fit_intercept:
-            self.intercept_ = self.results_["beta[1]"].median()
-            self.coef_ = self.results_[[f"beta[{d+1}]" for d in range(1, D)]].median()
+            self.intercept_ = self.results_["beta[1]"].median().values
+            self.coef_ = self.results_[[f"beta[{d+1}]" for d in range(1, D)]].median().values
         else:
-            self.coef_ = self.results_[[f"beta[{d+1}]" for d in range(D)]].median()
-        self.ate_ = self.results_[[f"tau[{i+1}]" for i in range(K)]].median()
+            self.coef_ = self.results_[[f"beta[{d+1}]" for d in range(D)]].median().values
+        self.ate_ = self.results_[[f"tau[{i+1}]" for i in range(K)]].median().values
         self.idata_ = az.from_cmdstanpy(posterior=self.stanfit_,
                                         posterior_predictive="y_pred",
                                         log_likelihood="log_likelihood")
@@ -232,11 +232,11 @@ class Joint(RegressorMixin, LinearModel):
 
         # Get posterior medians
         if self.fit_intercept:
-            self.intercept_ = self.results_["beta[1]"].median()
-            self.coef_ = self.results_[[f"beta[{d+1}]" for d in range(1, D)]].median()
+            self.intercept_ = self.results_["beta[1]"].median().values
+            self.coef_ = self.results_[[f"beta[{d+1}]" for d in range(1, D)]].median().values
         else:
-            self.coef_ = self.results_[[f"beta[{d+1}]" for d in range(D)]].median()
-        self.ate_ = self.results_[[f"tau[{i+1}]" for i in range(K)]].median()
+            self.coef_ = self.results_[[f"beta[{d+1}]" for d in range(D)]].median().values
+        self.ate_ = self.results_[[f"tau[{i+1}]" for i in range(K)]].median().values
         self.idata_ = az.from_cmdstanpy(posterior=self.stanfit_,
                                         posterior_predictive="y_pred",
                                         log_likelihood="log_likelihood")
