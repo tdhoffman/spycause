@@ -13,7 +13,7 @@ import os
 from cmdstanpy import CmdStanModel
 import numpy as np
 import arviz as az
-# from .diagnostics import diagnostics
+from .diagnostics import diagnostics
 from libpysal.weights import W as WeightsType
 from sklearn.base import RegressorMixin
 from sklearn.linear_model._base import LinearModel
@@ -89,10 +89,9 @@ class BayesOLS(RegressorMixin, LinearModel):
         return az.waic(self.idata_)
 
     def diagnostics(self):
-        # diagnostics(self, params=["beta", "tau", "sigma"])
-        check_is_fitted(self)
-
-        return self.stanfit_.diagnose()
+        diagnostics(self, params=["beta", "tau", "sigma"])
+        # check_is_fitted(self)
+        # return self.stanfit_.diagnose()
 
 
 class ICAR(RegressorMixin, LinearModel):
@@ -171,10 +170,9 @@ class ICAR(RegressorMixin, LinearModel):
         return az.waic(self.idata_)
 
     def diagnostics(self):
-        # diagnostics(self, params=["beta", "tau", "sigma", "u"])
-        check_is_fitted(self)
-
-        return self.stanfit_.diagnose()
+        diagnostics(self, params=["beta", "tau", "sigma", "u"])
+        # check_is_fitted(self)
+        # return self.stanfit_.diagnose()
 
 class Joint(RegressorMixin, LinearModel):
     def __init__(self, w=None, fit_intercept=True):
@@ -262,7 +260,6 @@ class Joint(RegressorMixin, LinearModel):
         return az.waic(self.idata_)
 
     def diagnostics(self):
-        # diagnostics(self, params=["beta", "tau", "sigma", "alpha", "u", "v", "sd_u", "sd_v", "psi"])
-        check_is_fitted(self)
-
-        return self.stanfit_.diagnose()
+        diagnostics(self, params=["beta", "tau", "sigma", "alpha", "u", "v", "sd_u", "sd_v", "psi"])
+        # check_is_fitted(self)
+        # return self.stanfit_.diagnose()
