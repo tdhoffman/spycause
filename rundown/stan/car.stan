@@ -58,6 +58,7 @@ data {
 transformed data {
   int W_sparse[W_n, 2];  // adjacency pairs
   vector[N] D_sparse;    // diagonal of D (number of neighbors for each region)
+  vector[N] lambda;      // eigenvalues of D^{-1/2} * W * D^{-1/2}
 
   // Generate sparse representation for W
   int counter = 1;
@@ -74,10 +75,11 @@ transformed data {
 
   // Obtain entries of D
   for (i in 1:N) D_sparse[i] = sum(W[i]);
-
-  // Get eigenvalues of D^{-1/2} * W * D^{-1/2}
-  vector[N] invsqrtD = 1 ./ sqrt(D_sparse);
-  vector[N] lambda = eigenvalues_sym(quad_form(W, diag_matrix(invsqrtD)));
+  vector[N] invsqrtD;
+  for (i in 1:N) {
+    invsqrtD[i] = 1 / sqrt(D_sparse[i]);
+  }
+  lambda = eigenvalues_sym(quad_form(W, diag_matrix(invsqrtD)));
 }
 
 parameters {
@@ -86,23 +88,35 @@ parameters {
   real<lower=0> sigma2;  // variance of outcome
 
   // CAR effects
-  vector[N] phi;               // spatially structured residuals
+  vector[N] u;               // spatially structured residuals
   real<lower=0, upper=1> rho;  // level of spatial autocorrelation
-  real<lower=0> prec_phi;      // precision of phi
+  real<lower=0> prec_u;      // precision of u 
 }
 
 transformed parameters {
   real sigma = sqrt(sigma2);  // SD, required for parametrizing the likelihood
+  vector[N] mu = X*beta + Z*tau + u;
 }
 
 model {
-  y ~ normal(X*beta + Z*tau + phi, sigma);
+  y ~ normal(mu, sigma);
 
   tau ~ normal(0, 5);
   beta ~ normal(0, 5);
-  sigma2 ~ cauchy(0, 5);
+  sigma ~ exponential(1);
 
   // CAR prior
-  phi ~ sparse_car(prec_phi, rho, W_sparse, D_sparse, lambda, N, W_n);
-  prec_phi ~ gamma(2, 2);
+  u ~ sparse_car(prec_u, rho, W_sparse, D_sparse, lambda, N, W_n);
+  prec_u ~ gamma(2, 2);
+}
+
+generated quantities {
+  real<lower=0> sd_u = inv(sqrt(prec_u));
+
+  vector[N] log_likelihood;
+  vector[N] y_pred;
+  for (i in 1:N) {
+    log_likelihood[i] = normal_lpdf(y[i] | mu[i], sigma);
+    y_pred[i] = normal_rng(mu[i], sigma);
+  }
 }

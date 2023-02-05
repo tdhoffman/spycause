@@ -24,6 +24,7 @@ W.transform = "r"
 sim = rd.CARSimulator(Nlat, D, sp_confound=W)
 X, Y, Z = sim.simulate(treat=tau, y_conf=beta, x_sd=x_sd, y_sd=y_sd, ucar_sd=ucar_sd, vcar_sd=vcar_sd,
                        ucar_str=rho, vcar_str=rho)
+W.transform = "o"
 
 ## Fit model
 model = rd.Joint(w=W, fit_intercept=False)
@@ -47,6 +48,8 @@ X, Y, Z = intsim.simulate(treat=tau, y_conf=beta, x_sd=x_sd, y_sd=y_sd, ucar_sd=
 ## Interference adjustment
 intadj = rd.InterferenceAdj(w=Wint)
 Zint = intadj.transform(Z)
+
+W.transform = "o"
 
 ## Estimate
 intmodel = rd.Joint(w=W, fit_intercept=False)

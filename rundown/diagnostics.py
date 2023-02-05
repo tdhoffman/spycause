@@ -77,7 +77,7 @@ def diagnostics(model, params=["beta", "tau", "sigma"]):
     if hasattr(model.bfmi, "__len__"):
         if (model.bfmi < 0.2).any():
             bfmi_warning = True
-            print("BFMIs are {model.bfmi}, under 0.2; may need to reparametrize your model.")
+            print(f"BFMIs are {model.bfmi}, under 0.2; may need to reparametrize your model.")
     else:
         if model.bfmi < 0.2:
             print(f"BFMI = {model.bfmi} < 0.2. You may need to reparametrize your model.")
