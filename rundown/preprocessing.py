@@ -36,7 +36,7 @@ class InterferenceAdj(BaseEstimator, TransformerMixin):
         if len(X.shape) < 2:  # ensure column vector
             X = X.reshape(-1, 1)
 
-        if type(self.w) == WeightsType:
+        if isinstance(self.w, WeightsType):
             weights = self.w.full()[0]
         else:
             weights = self.w
