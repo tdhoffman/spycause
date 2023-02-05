@@ -16,8 +16,8 @@ parameters {
 model {
   y ~ normal(X*beta + Z*tau, sigma);
 
-  tau ~ normal(0, 5);
-  beta ~ normal(0, 5);
+  tau ~ normal(0, 2);
+  beta ~ normal(0, 2);
   sigma ~ exponential(1);
 }
 

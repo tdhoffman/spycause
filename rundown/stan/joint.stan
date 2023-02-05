@@ -117,9 +117,9 @@ model {
   Y ~ normal(mu, sigma);
 
   // Priors
-  alpha ~ normal(0, 5);
-  beta ~ normal(0, 5);
-  tau ~ normal(0, 5);
+  alpha ~ normal(0, 2);
+  beta ~ normal(0, 2);
+  tau ~ normal(0, 2);
   psi ~ normal(0, 0.1);
   sigma ~ exponential(1);
   
