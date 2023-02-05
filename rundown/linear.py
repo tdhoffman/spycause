@@ -10,6 +10,8 @@ CONTENTS:
 """
 
 import os
+from shutil import rmtree
+from tempfile import mkdtemp
 from cmdstanpy import CmdStanModel
 import numpy as np
 import arviz as az
@@ -29,7 +31,7 @@ class BayesOLS(RegressorMixin, LinearModel):
         self._stanf = os.path.join(_package_directory, "stan", "ols.stan")
 
     def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=False,
-            delta=0.8, max_depth=10):
+            delta=0.8, max_depth=10, simulation=False):
         if len(X.shape) == 1:
             X = X.reshape(-1, 1)
         N, D = X.shape
@@ -47,6 +49,10 @@ class BayesOLS(RegressorMixin, LinearModel):
 
         model = CmdStanModel(stan_file=self._stanf)
 
+        output_dir = None
+        if simulation is True:
+            output_dir = mkdtemp(dir='.')
+
         model_data = {"N": N, "D": D, "K": K, "X": X, "y": y, "Z": Z}
         self.stanfit_ = model.sample(data=model_data,
                                      chains=nchains,
@@ -56,7 +62,8 @@ class BayesOLS(RegressorMixin, LinearModel):
                                      adapt_delta=delta,
                                      max_treedepth=max_depth,
                                      show_progress=True,
-                                     show_console=False)
+                                     show_console=False,
+                                     output_dir=output_dir)
         self.results_ = self.stanfit_.draws_pd()
 
         # Get posterior medians
@@ -70,6 +77,9 @@ class BayesOLS(RegressorMixin, LinearModel):
                                         posterior_predictive="y_pred",
                                         log_likelihood="log_likelihood")
         self.max_depth = max_depth
+
+        if simulation:
+            rmtree(output_dir)
         return self
 
     def score(self, X, y, Z):
@@ -101,7 +111,7 @@ class ICAR(RegressorMixin, LinearModel):
         self._stanf = os.path.join(_package_directory, "stan", "icar.stan")
 
     def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=False,
-            delta=0.8, max_depth=10):
+            delta=0.8, max_depth=10, simulation=False):
         if len(X.shape) == 1:
             X = X.reshape(-1, 1)
         N, D = X.shape
@@ -125,6 +135,10 @@ class ICAR(RegressorMixin, LinearModel):
         else:
             raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
 
+        output_dir = None
+        if simulation is True:
+            output_dir = mkdtemp(dir='.')
+
         model = CmdStanModel(stan_file=self._stanf)
 
         model_data = {"N": N, "D": D, "K": K, "X": X, "y": y, "Z": Z,
@@ -137,7 +151,8 @@ class ICAR(RegressorMixin, LinearModel):
                                      adapt_delta=delta,
                                      max_treedepth=max_depth,
                                      show_progress=True,
-                                     show_console=False)
+                                     show_console=False,
+                                     output_dir=output_dir)
         self.results_ = self.stanfit_.draws_pd()
 
         # Get posterior medians
@@ -151,6 +166,9 @@ class ICAR(RegressorMixin, LinearModel):
                                         posterior_predictive="y_pred",
                                         log_likelihood="log_likelihood")
         self.max_depth = max_depth
+
+        if simulation:
+            rmtree(output_dir)
         return self
 
     def score(self, X, y, Z):
@@ -187,7 +205,7 @@ class CAR(RegressorMixin, LinearModel):
         self._stanf = os.path.join(_package_directory, "stan", "car.stan")
 
     def fit(self, X, y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True,
-            delta=0.8, max_depth=10):
+            delta=0.8, max_depth=10, simulation=False):
         N, D = X.shape
         if len(Z.shape) < 1:
             Z = Z.reshape(-1, 1)
@@ -205,6 +223,10 @@ class CAR(RegressorMixin, LinearModel):
         else:
             w = self.w
         W_n = w[np.triu_indices(N)].sum(dtype=np.int64)  # number of adjacent region pairs
+
+        output_dir = None
+        if simulation is True:
+            output_dir = mkdtemp(dir='.')
 
         model = CmdStanModel(stan_file=self._stanf)
 
@@ -233,6 +255,9 @@ class CAR(RegressorMixin, LinearModel):
                                         posterior_predictive="y_pred",
                                         log_likelihood="log_likelihood")
         self.max_depth = max_depth
+
+        if simulation:
+            rmtree(output_dir)
         return self
 
     def waic(self):
@@ -256,7 +281,7 @@ class Joint(RegressorMixin, LinearModel):
         self._stanf = os.path.join(_package_directory, "stan", "joint.stan")
 
     def fit(self, X, Y, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=False,
-            delta=0.8, max_depth=10):
+            delta=0.8, max_depth=10, simulation=False):
         """
         Interference adjustment is going to be tricky here
         Stan doesn't like polymorphism
@@ -287,6 +312,10 @@ class Joint(RegressorMixin, LinearModel):
             w = self.w
         W_n = w[np.triu_indices(N)].sum(dtype=np.int64)  # number of adjacent region pairs
 
+        output_dir = None
+        if simulation is True:
+            output_dir = mkdtemp(dir='.')
+
         model = CmdStanModel(stan_file=self._stanf)
 
         model_data = {"N": N, "D": D, "K": K, "X": X, "Y": Y, "Z": Z,
@@ -313,6 +342,9 @@ class Joint(RegressorMixin, LinearModel):
                                         posterior_predictive="y_pred",
                                         log_likelihood="log_likelihood")
         self.max_depth = max_depth
+
+        if simulation:
+            rmtree(output_dir)
         return self
 
     def score(self, X, y, Z):
