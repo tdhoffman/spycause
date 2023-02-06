@@ -241,7 +241,8 @@ class CAR(RegressorMixin, LinearModel):
                                      adapt_delta=delta,
                                      max_treedepth=max_depth,
                                      show_progress=True,
-                                     show_console=False)
+                                     show_console=False,
+                                     output_dir=output_dir)
         self.results_ = self.stanfit_.draws_pd()
 
         # Get posterior medians 
@@ -329,7 +330,8 @@ class Joint(RegressorMixin, LinearModel):
                                      adapt_delta=delta,
                                      max_treedepth=max_depth,
                                      show_progress=True,
-                                     show_console=False)
+                                     show_console=False,
+                                     output_dir=output_dir)
         self.results_ = self.stanfit_.draws_pd()
 
         # Get posterior medians
