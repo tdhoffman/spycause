@@ -127,7 +127,7 @@ class ICAR(RegressorMixin, LinearModel):
             X = np.hstack((np.ones((N, 1)), X))
 
         # Process weights matrix
-        if type(self.w) == WeightsType:
+        if isinstance(self.w, WeightsType):
             node1 = self.w.to_adjlist()['focal'].values + 1
             node2 = self.w.to_adjlist()['neighbor'].values + 1
             weights = self.w.to_adjlist()['weight'].values
@@ -218,7 +218,7 @@ class CAR(RegressorMixin, LinearModel):
             X = np.hstack((np.ones((N, 1)), X))
 
         # Process weights matrix
-        if type(self.w) == WeightsType:
+        if isinstance(self.w, WeightsType):
             self.w.transform = "o"
             w = self.w.full()[0]
         else:
@@ -308,7 +308,8 @@ class Joint(RegressorMixin, LinearModel):
             X = np.hstack((np.ones((N, 1)), X))
 
         # Process weights matrix
-        if type(self.w) == WeightsType:
+        if isinstance(self.w, WeightsType):
+            self.w.transform = "o"
             w = self.w.full()[0]
         else:
             w = self.w
