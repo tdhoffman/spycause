@@ -219,7 +219,7 @@ class CAR(RegressorMixin, LinearModel):
 
         # Process weights matrix
         if type(self.w) == WeightsType:
-            w.transform = "o"
+            self.w.transform = "o"
             w = self.w.full()[0]
         else:
             w = self.w
