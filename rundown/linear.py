@@ -219,8 +219,8 @@ class CAR(RegressorMixin, LinearModel):
 
         # Process weights matrix
         if type(self.w) == WeightsType:
-            w = self.w.full()[0]
             w.transform = "o"
+            w = self.w.full()[0]
         else:
             w = self.w
         W_n = w[np.triu_indices(N)].sum(dtype=np.int64)  # number of adjacent region pairs
