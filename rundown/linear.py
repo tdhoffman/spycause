@@ -47,11 +47,15 @@ class BayesOLS(RegressorMixin, LinearModel):
             X = np.hstack((np.ones((N, 1)), X))
             D += 1
 
-        model = CmdStanModel(stan_file=self._stanf)
-
         output_dir = None
+        compile_file = True  # compile as needed if not simulating
+        stanexe = None
         if simulation is True:
             output_dir = mkdtemp(dir='.')
+            compile_file = False
+            stanexe = os.path.join(_package_directory, "stan", "ols")
+
+        model = CmdStanModel(stan_file=self._stanf, exe_file=stanexe, compile=compile_file)
 
         model_data = {"N": N, "D": D, "K": K, "X": X, "y": y, "Z": Z}
         self.stanfit_ = model.sample(data=model_data,
@@ -226,10 +230,14 @@ class CAR(RegressorMixin, LinearModel):
         W_n = w[np.triu_indices(N)].sum(dtype=np.int64)  # number of adjacent region pairs
 
         output_dir = None
+        compile_file = True  # compile as needed if not simulating
+        stanexe = None
         if simulation is True:
             output_dir = mkdtemp(dir='.')
+            compile_file = False
+            stanexe = os.path.join(_package_directory, "stan", "car")
 
-        model = CmdStanModel(stan_file=self._stanf)
+        model = CmdStanModel(stan_file=self._stanf, exe_file=stanexe, compile=compile_file)
 
         model_data = {"N": N, "D": D, "K": K, "X": X, "y": y, "Z": Z,
                       "W": w, "W_n": W_n}
@@ -316,10 +324,14 @@ class Joint(RegressorMixin, LinearModel):
         W_n = w[np.triu_indices(N)].sum(dtype=np.int64)  # number of adjacent region pairs
 
         output_dir = None
+        compile_file = True  # compile as needed if not simulating
+        stanexe = None
         if simulation is True:
             output_dir = mkdtemp(dir='.')
+            compile_file = False
+            stanexe = os.path.join(_package_directory, "stan", "joint")
 
-        model = CmdStanModel(stan_file=self._stanf)
+        model = CmdStanModel(stan_file=self._stanf, exe_file=stanexe, compile=compile_file)
 
         model_data = {"N": N, "D": D, "K": K, "X": X, "Y": Y, "Z": Z,
                       "Zlag": Zlag, "W": w, "W_n": W_n}

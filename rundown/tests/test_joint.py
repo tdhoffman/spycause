@@ -28,7 +28,7 @@ W.transform = "o"
 
 ## Fit model
 model = rd.Joint(w=W, fit_intercept=False)
-model = model.fit(X, Y, Z)
+model = model.fit(X, Y, Z, nsamples=4000, nwarmup=1000)
 
 ## Results
 print(model.ate_)

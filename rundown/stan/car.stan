@@ -107,7 +107,7 @@ model {
 
   // CAR prior
   u ~ sparse_car(prec_u, rho, W_sparse, D_sparse, lambda, N, W_n);
-  prec_u ~ gamma(2, 2);
+  prec_u ~ gamma(0.5, 0.005);
 }
 
 generated quantities {
