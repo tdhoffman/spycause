@@ -1,5 +1,7 @@
-# rundown
-The rundown of (a) scenarios provoking issues in spatial causal inference, (b) existing spatial causal models, and (c) the matrix of applications of members of (b) on members of (a).
+# spycause
+A module for spatial causal inference in Python.
+
+Text for experiments repo: The rundown of (a) scenarios provoking issues in spatial causal inference, (b) existing spatial causal models, and (c) the matrix of applications of members of (b) on members of (a).
 
 Throughout, we assume that there is **only one** observation per region (unlike Reich et al. 2021) and that all models permit a causal interpretation.
 
