@@ -9,14 +9,7 @@ Welcome to spycause's documentation!
 
 .. toctree::
    simulator.md
+   models.md
+   diagnostics.md
    :maxdepth: 2
    :caption: Contents:
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

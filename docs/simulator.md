@@ -1,3 +1,3 @@
-# Simulator
+# Simulation code
 
 simulator
