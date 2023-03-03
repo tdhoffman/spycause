@@ -9,6 +9,7 @@ Welcome to spycause's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   simulator.md
 
 
 
