@@ -376,6 +376,18 @@ if __name__ == "__main__":
             if data[i1, j1] == data[i2, j2]:
                 interference[p, q] = 1
 
+    # Plot regions
+    _, ax = plt.subplots()
+    plt.imshow(data)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for x in np.arange(-0.5, 29, 1):
+        plt.plot([x, x], [-0.5, 29.5], 'k', linewidth=0.75)
+    for y in np.arange(-0.5, 29, 1):
+        plt.plot([-0.5, 29.5], [y, y], 'k', linewidth=0.75)
+    plt.title("Regions for weights construction")
+    plt.show()
+
     sim = Simulator(Nlat, D, interference=interference)
     X, Y, Z = sim.simulate(treat=0.2)
 
