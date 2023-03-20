@@ -17,7 +17,7 @@ All models are fitted in a Bayesian framework using `the Stan programming langua
    :maxdepth: 2
    :caption: Contents
 
-Next steps for implementations:
+Upcoming planned models for implementation:
 
 * Spatial diff-in-diff
 * Spatial instrumental variables
