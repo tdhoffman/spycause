@@ -3,7 +3,7 @@
 simulator
 
 ```{eval-rst}
-.. autoclass:: spycause.CARSimulator
-    :show-inheritance:
-    :members: __init__, simulate
+.. py:currentmodule:: spycause.simulator
+.. autoclass:: CARSimulator
+    :members: simulate
 ```
