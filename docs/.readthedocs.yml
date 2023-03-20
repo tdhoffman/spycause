@@ -1,0 +1,13 @@
+version: 0.1
+
+conda:
+    environment: docs/environment.yml
+
+sphinx:
+    configuration: docs/conf.py
+    fail_on_warning: true
+
+build:
+    os: "ubuntu-20.04"
+    tools:
+        python: "3.8"
