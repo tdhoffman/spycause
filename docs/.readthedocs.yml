@@ -1,13 +1,17 @@
 version: 0.1
 
-conda:
-    environment: environment.yml
-
 sphinx:
     configuration: docs/conf.py
     fail_on_warning: true
 
 build:
-    os: "ubuntu-20.04"
-    tools:
-        python: "mambaforge-4.10"
+    image: latest
+
+python:
+    version: 3.8
+    install:
+        - method: pip
+          path: .
+
+conda:
+    environment: environment.yml
