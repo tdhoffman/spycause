@@ -1,6 +1,4 @@
 # spycause
-[![Documentation Status](https://readthedocs.org/projects/spycause/badge/?version=latest)](https://spycause.readthedocs.io/en/latest/?badge=latest)
-
 A module for spatial causal inference in Python.
 
 Docs are forthcoming.

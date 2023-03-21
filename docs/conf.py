@@ -6,9 +6,6 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-import sys, os
-sys.path.insert(0, os.path.abspath("../"))
-
 project = 'spycause'
 copyright = '2023, Tyler D. Hoffman'
 author = 'Tyler D. Hoffman'
@@ -17,9 +14,7 @@ release = '0.1'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["myst_parser",
-              "sphinx.ext.autodoc"
-]
+extensions = ["myst_parser"]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
