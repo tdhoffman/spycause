@@ -6,3 +6,4 @@ cmdstanpy
 libpysal
 sklearn
 scipy
+spopt
