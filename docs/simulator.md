@@ -5,5 +5,5 @@
 ```{eval-rst}
 .. py:currentmodule:: spycause.simulator
 .. autoclass:: CARSimulator
-    :members: simulate
+    :members: __init__, simulate
 ```
