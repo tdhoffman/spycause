@@ -1,2 +1,8 @@
 myst-parser
 numpy
+pandas
+arviz
+cmdstanpy
+libpysal
+sklearn
+scipy
