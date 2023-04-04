@@ -27,6 +27,16 @@ _package_directory = os.path.dirname(os.path.abspath(__file__))
 
 class BayesOLS(RegressorMixin, LinearModel):
     def __init__(self, fit_intercept=True):
+        """
+        Initialize model class for ordinary linear regression.
+
+        :param fit_intercept: whether or not to use an intercept, defaults to True
+        :type fit_intercept: bool, optional
+
+        :return: a configured model class
+        :rtype: `BayesOLS`
+        """
+
         self.fit_intercept = fit_intercept
         self._stanf = os.path.join(_package_directory, "stan", "ols.stan")
 
