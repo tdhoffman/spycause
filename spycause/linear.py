@@ -30,8 +30,8 @@ class BayesOLS(RegressorMixin, LinearModel):
         """
         Initialize model class for ordinary linear regression.
 
-        :param fit_intercept: whether or not to use an intercept, defaults to True
-        :type fit_intercept: bool, optional
+        fit_intercept: bool, defaults to True
+                       whether or not to use an intercept
 
         :return: a configured model class
         :rtype: `BayesOLS`
