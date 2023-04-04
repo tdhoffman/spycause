@@ -18,9 +18,9 @@ class Simulator:
 
         Parameters
         ----------
-        Nlat         : int
+        :param Nlat  : int
                        side length of the lattice
-        D            : int
+        :param D     : int
                        number of covariates to generate
         sp_confound  : matrix, default None
                        matrix specifying the mode of confounding between locations
