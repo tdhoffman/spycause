@@ -16,25 +16,23 @@ class Simulator:
         """
         Initialize self and parameters for simulation.
 
-        Parameters
-        ----------
-        Nlat: int
+        Nlat         : int
                        side length of the lattice
-        D: int
+        D            : int
                        number of covariates to generate
-        sp_confound: matrix, default None
+        sp_confound  : matrix, default None
                        matrix specifying the mode of confounding between locations
-        interference: matrix, string, or int, default None
+        interference : matrix, string, or int, default None
                        matrix specifying the mode of interference between locations
                        string options:
-                         - "general": interference between all locations
-                         - "partial": interference only among locations in clusters
-                           generated using RandomRegion. Recommended to select the clusters
-                           yourself and manually input the adjacency matrix (block diagonal)
-                           as the RandomRegion call takes a while. If int, then generates
-                           that number of clusters.
-                         - "network": interference among adjacent locations using Queen weights
-                         - "none": no interference, same as passing None
+                       - "general": interference between all locations
+                       - "partial": interference only among locations in clusters
+                          generated using RandomRegion. Recommended to select the clusters
+                          yourself and manually input the adjacency matrix (block diagonal)
+                          as the RandomRegion call takes a while. If int, then generates
+                          that number of clusters.
+                       - "network": interference among adjacent locations using Queen weights
+                       - "none": no interference, same as passing None
         """
 
         self.Nlat = Nlat
