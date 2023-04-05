@@ -114,10 +114,19 @@ class BayesOLS(RegressorMixin, LinearModel):
             rmtree(output_dir)
         return self
 
+    def predict(self):
+        """
+        Return posterior predictive.
+        """
+        check_is_fitted(self)
+
+        return self.results_.filter(regex=r"^y_pred", axis=1).median().values
+
     def score(self, X, y, Z):
         """
         Computes pseudo R2 for the model using posterior predictive.
         """
+        check_is_fitted(self)
 
         y_pred = self.predict()
         return float(pearsonr(y.flatten(), y_pred.flatten())[0] ** 2)
@@ -231,6 +240,14 @@ class ICAR(RegressorMixin, LinearModel):
         if simulation:
             rmtree(output_dir)
         return self
+
+    def predict(self):
+        """
+        Return posterior predictive.
+        """
+        check_is_fitted(self)
+
+        return self.results_.filter(regex=r"^y_pred", axis=1).median().values
 
     def score(self, X, y, Z):
         """
@@ -474,6 +491,14 @@ class Joint(RegressorMixin, LinearModel):
         if simulation:
             rmtree(output_dir)
         return self
+
+    def predict(self):
+        """
+        Return posterior predictive.
+        """
+        check_is_fitted(self)
+
+        return self.results_.filter(regex=r"^y_pred", axis=1).median().values
 
     def score(self, X, y, Z):
         """
