@@ -11,6 +11,7 @@ import libpysal.weights as weights
 from scipy.special import expit
 from spopt.region import RandomRegion
 
+
 class Simulator:
     def __init__(self, Nlat, D, sp_confound=None, interference=None):
         """
@@ -36,12 +37,12 @@ class Simulator:
         """
 
         self.Nlat = Nlat
-        self.N = Nlat**2
+        self.N = Nlat ** 2
         self.D = D
         self.sp_confound = sp_confound
 
         # if type(self.sp_confound) == weights.W:
-            # self.sp_confound = self.sp_confound.full()[0]
+        # self.sp_confound = self.sp_confound.full()[0]
 
         # Parse interference options
         if type(interference) == str:
@@ -52,14 +53,18 @@ class Simulator:
                 interference = np.ones((self.N, self.N))
             elif isinstance(interference, str) and interference == "network":
                 interference = weights.lat2W(Nlat, Nlat, rook=False).full()[0]
-            elif isinstance(interference, int) or (isinstance(interference, str) and interference == "partial"):
+            elif isinstance(interference, int) or (
+                isinstance(interference, str) and interference == "partial"
+            ):
                 W = weights.lat2W(Nlat, Nlat, rook=False)
 
                 if type(interference) == int:
                     nregs = interference
                 else:
                     nregs = np.random.randint(low=4, high=10)
-                t1 = RandomRegion(W.id_order, num_regions=nregs, contiguity=W, compact=True)
+                t1 = RandomRegion(
+                    W.id_order, num_regions=nregs, contiguity=W, compact=True
+                )
 
                 source = []
                 dest = []
@@ -68,7 +73,9 @@ class Simulator:
                     for node in region:
                         source.append(node)
                         dest += [i for i in region.difference({node})]
-                adjlist = pd.DataFrame(columns=["source", "dest"], data=np.dstack((source, dest)))
+                adjlist = pd.DataFrame(
+                    columns=["source", "dest"], data=np.dstack((source, dest))
+                )
 
                 interference = weights.W.from_adjlist(adjlist)
             elif isinstance(interference, weights.W):
@@ -82,8 +89,21 @@ class Simulator:
             interference /= interference.sum(1, keepdims=1)
         self.interference = interference
 
-    def simulate(self, treat=0.5, zconf=0.25, sp_zconf=0.25, yconf=0.5, sp_yconf=0.25,
-                 interf=0, x_sd=1, x_sp=0.9, eps_sd=0.1, ycar_sd=0.5, zcar_sd=0.5, **kwargs):
+    def simulate(
+        self,
+        treat=0.5,
+        zconf=0.25,
+        sp_zconf=0.25,
+        yconf=0.5,
+        sp_yconf=0.25,
+        interf=0,
+        x_sd=1,
+        x_sp=0.9,
+        eps_sd=0.1,
+        ycar_sd=0.5,
+        zcar_sd=0.5,
+        **kwargs
+    ):
         """
         Simulate data based on some parameters.
         All the conf and interf parameters could be arrays of size D
@@ -137,7 +157,9 @@ class Simulator:
         if self.sp_confound is not None:
             self.sp_confound.transform = "r"
 
-        Z = np.random.binomial(1, self._create_Z(X, zconf, sp_zconf, **kwargs)).reshape(-1, 1)
+        Z = np.random.binomial(1, self._create_Z(X, zconf, sp_zconf, **kwargs)).reshape(
+            -1, 1
+        )
         Y = self._create_Y(X, Z, treat, yconf, sp_yconf, interf, eps_sd, **kwargs)
 
         # Compute treated percentage
@@ -159,8 +181,9 @@ class Simulator:
         Y = np.dot(X, yconf) + treat * Z + eps_y
 
         rowsums = np.fromiter(self.sp_confound.cardinalities.values(), dtype=float)
-        cov_y = (ycar_sd**2)*sp.linalg.spsolve(sp.diags(rowsums) - sp_yconf*self.sp_confound.sparse,
-                                               np.eye(self.N))
+        cov_y = (ycar_sd ** 2) * sp.linalg.spsolve(
+            sp.diags(rowsums) - sp_yconf * self.sp_confound.sparse, np.eye(self.N)
+        )
         car_y = np.linalg.cholesky(cov_y)
 
         if self.sp_confound is not None:
@@ -181,12 +204,13 @@ class Simulator:
         # xvals = (X - X.min()) / (X.max() - X.min())
         # xvals = (X - X.mean(0)) / X.std(0)
         # if self.sp_confound is not None:
-            # prop_scores += sp_zconf * np.dot(self.sp_confound, prop_scores)
+        # prop_scores += sp_zconf * np.dot(self.sp_confound, prop_scores)
 
         # Set up spatial confounding
         rowsums = np.fromiter(self.sp_confound.cardinalities.values(), dtype=float)
-        cov_z = (zcar_sd**2)*sp.linalg.spsolve(sp.diags(rowsums) - sp_zconf*self.sp_confound.sparse,
-                                               np.eye(self.N))
+        cov_z = (zcar_sd ** 2) * sp.linalg.spsolve(
+            sp.diags(rowsums) - sp_zconf * self.sp_confound.sparse, np.eye(self.N)
+        )
         car_z = np.linalg.cholesky(cov_z)
         prop_scores += np.dot(car_z, np.random.normal(size=(self.N, 1)))
 
@@ -194,9 +218,22 @@ class Simulator:
 
 
 class CARSimulator(Simulator):
-    def simulate(self, treat=0.5, z_conf=0.25, y_conf=0.5, interf=0, x_sd=1, x_sp=0.9,
-                 ucar_sd=2, ucar_str=0.95, vcar_sd=2, vcar_str=0.95, balance=0.5,
-                 y_sd=0.1, **kwargs):
+    def simulate(
+        self,
+        treat=0.5,
+        z_conf=0.25,
+        y_conf=0.5,
+        interf=0,
+        x_sd=1,
+        x_sp=0.9,
+        ucar_sd=2,
+        ucar_str=0.95,
+        vcar_sd=2,
+        vcar_str=0.95,
+        balance=0.5,
+        y_sd=0.1,
+        **kwargs
+    ):
         """
         Simulate data based on some parameters.
         All the conf and interf parameters could be arrays of size D
@@ -236,11 +273,11 @@ class CARSimulator(Simulator):
         """
 
         if np.ndim(x_sd) == 0:
-            x_sd = x_sd*np.ones((self.D, 1))
+            x_sd = x_sd * np.ones((self.D, 1))
         if np.ndim(z_conf) == 0:
-            z_conf = z_conf*np.ones((self.D, 1))
+            z_conf = z_conf * np.ones((self.D, 1))
         if np.ndim(y_conf) == 0:
-            y_conf = y_conf*np.ones((self.D, 1))
+            y_conf = y_conf * np.ones((self.D, 1))
 
         # Confounders
         X = np.zeros((self.N, self.D))
@@ -255,11 +292,15 @@ class CARSimulator(Simulator):
 
         # Set up CAR terms for spatial confounding on Y and Z
         if self.sp_confound is not None:
-            self.sp_confound.transform = "r"  # row standardize so we don't need to use row sums
-            cov_u = (ucar_sd**2)*np.linalg.solve(np.eye(self.N) - ucar_str*self.sp_confound.sparse,
-                                                 np.eye(self.N))
-            cov_v = (vcar_sd**2)*np.linalg.solve(np.eye(self.N) - vcar_str*self.sp_confound.sparse,
-                                                 np.eye(self.N))
+            self.sp_confound.transform = (
+                "r"  # row standardize so we don't need to use row sums
+            )
+            cov_u = (ucar_sd ** 2) * np.linalg.solve(
+                np.eye(self.N) - ucar_str * self.sp_confound.sparse, np.eye(self.N)
+            )
+            cov_v = (vcar_sd ** 2) * np.linalg.solve(
+                np.eye(self.N) - vcar_str * self.sp_confound.sparse, np.eye(self.N)
+            )
             U = np.dot(cov_u, np.random.normal(size=(self.N, 1)))
             V = np.dot(cov_v, np.random.normal(size=(self.N, 1)))
         else:
@@ -279,12 +320,12 @@ class CARSimulator(Simulator):
         return X, Y, Z
 
     def _create_Z(self, X, U, V, z_conf, balance):
-        return expit(np.dot(X, z_conf) + V + balance*U)
+        return expit(np.dot(X, z_conf) + V + balance * U)
 
     def _create_Y(self, X, Z, U, treat, y_conf, interf):
-        means = Z*treat + np.dot(X, y_conf) + U
+        means = Z * treat + np.dot(X, y_conf) + U
         if self.interference is not None:
-            means += interf*np.dot(self.interference, Z)
+            means += interf * np.dot(self.interference, Z)
         return means
 
 
@@ -296,7 +337,13 @@ class FriedmanSimulator(Simulator):
 
     def _create_Y(self, X, Z, treat, yconf, sp_yconf, interf, eps_sd, **kwargs):
         eps_y = np.random.normal(loc=0, scale=eps_sd, size=(self.N, 1))
-        Y = 10*np.sin(np.pi*X[:, [0]]*X[:, [1]]) + 20*(X[:, [2]] - 0.5)**2 + 10*X[:, [3]] + treat*Z + eps_y
+        Y = (
+            10 * np.sin(np.pi * X[:, [0]] * X[:, [1]])
+            + 20 * (X[:, [2]] - 0.5) ** 2
+            + 10 * X[:, [3]]
+            + treat * Z
+            + eps_y
+        )
 
         if np.isscalar(sp_yconf):
             sp_yconf *= np.ones((self.D, 1))
@@ -361,13 +408,24 @@ if __name__ == "__main__":
     plt.show()
 
     ## Linear partial spatial interference (scenario 5)
-    data = np.vstack((np.hstack((np.ones((Nlat//2, Nlat//2)), 2*np.ones((Nlat//2, Nlat//2)))),
-                      np.hstack((3*np.ones((Nlat//2, Nlat//2)), 4*np.ones((Nlat//2, Nlat//2))))))
-    interference = np.zeros((Nlat**2, Nlat**2))
+    data = np.vstack(
+        (
+            np.hstack(
+                (np.ones((Nlat // 2, Nlat // 2)), 2 * np.ones((Nlat // 2, Nlat // 2)))
+            ),
+            np.hstack(
+                (
+                    3 * np.ones((Nlat // 2, Nlat // 2)),
+                    4 * np.ones((Nlat // 2, Nlat // 2)),
+                )
+            ),
+        )
+    )
+    interference = np.zeros((Nlat ** 2, Nlat ** 2))
 
-    for p in range(Nlat**2):
+    for p in range(Nlat ** 2):
         i1, j1 = np.unravel_index(p, (Nlat, Nlat))
-        for q in range(Nlat**2):
+        for q in range(Nlat ** 2):
             i2, j2 = np.unravel_index(q, (Nlat, Nlat))
             if data[i1, j1] == data[i2, j2]:
                 interference[p, q] = 1
@@ -378,9 +436,9 @@ if __name__ == "__main__":
     ax.set_xticks([])
     ax.set_yticks([])
     for x in np.arange(-0.5, 29, 1):
-        plt.plot([x, x], [-0.5, 29.5], 'k', linewidth=0.75)
+        plt.plot([x, x], [-0.5, 29.5], "k", linewidth=0.75)
     for y in np.arange(-0.5, 29, 1):
-        plt.plot([-0.5, 29.5], [y, y], 'k', linewidth=0.75)
+        plt.plot([-0.5, 29.5], [y, y], "k", linewidth=0.75)
     plt.title("Regions for weights construction")
     plt.show()
 
@@ -506,9 +564,8 @@ if __name__ == "__main__":
 
 # Old confounder code:
 # means = np.random.choice(np.arange(-2 * self.D, 2 * self.D + 1, 1, dtype=int),
-                            # size=self.D, replace=False)
+# size=self.D, replace=False)
 # X = np.zeros((self.N, self.D))
 # for d in range(self.D):
-    # X[:, d] = np.random.normal(loc=means[d], scale=x_sd[d], size=(self.N,))
-    # X[:, d] = np.dot(np.linalg.inv(np.eye(self.N) - x_sp * W), X[:, d])
-
+# X[:, d] = np.random.normal(loc=means[d], scale=x_sd[d], size=(self.N,))
+# X[:, d] = np.dot(np.linalg.inv(np.eye(self.N) - x_sp * W), X[:, d])

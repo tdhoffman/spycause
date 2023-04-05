@@ -55,8 +55,17 @@ class PropEst(BaseEstimator, TransformerMixin):
         self.fit_intercept = fit_intercept
         self.bs_df = bs_df
 
-    def fit(self, X, Z, nchains=1, nsamples=1000, nwarmup=1000, save_warmup=True,
-            delta=0.8, max_depth=10):
+    def fit(
+        self,
+        X,
+        Z,
+        nchains=1,
+        nsamples=1000,
+        nwarmup=1000,
+        save_warmup=True,
+        delta=0.8,
+        max_depth=10,
+    ):
         if len(Z.shape) > 1:
             Z = Z.flatten()
 
@@ -66,31 +75,44 @@ class PropEst(BaseEstimator, TransformerMixin):
             D += 1
 
         if type(self.w) == WeightsType:
-            node1 = self.w.to_adjlist()['focal'].values + 1
-            node2 = self.w.to_adjlist()['neighbor'].values + 1
+            node1 = self.w.to_adjlist()["focal"].values + 1
+            node2 = self.w.to_adjlist()["neighbor"].values + 1
             N_edges = len(node1)
             self._stanf = os.path.join(_package_directory, "stan", "spatial_logit.stan")
-            model_data = {"N": N, "D": D, "X": X, "Z": Z,
-                          "N_edges": N_edges, "node1": node1, "node2": node2}
+            model_data = {
+                "N": N,
+                "D": D,
+                "X": X,
+                "Z": Z,
+                "N_edges": N_edges,
+                "node1": node1,
+                "node2": node2,
+            }
         elif type(self.w) == np.ndarray:
-            raise ValueError("w must be libpysal.weights.W in order to access adjacency lists")
+            raise ValueError(
+                "w must be libpysal.weights.W in order to access adjacency lists"
+            )
         else:
 
             self._stanf = os.path.join(_package_directory, "stan", "logit.stan")
             model_data = {"N": N, "D": D, "X": X, "Z": Z}
 
         model = CmdStanModel(stan_file=self._stanf)
-        self.stanfit_ = model.sample(data=model_data,
-                                     chains=nchains,
-                                     iter_warmup=nwarmup,
-                                     iter_sampling=nsamples,
-                                     save_warmup=save_warmup,
-                                     adapt_delta=delta,
-                                     max_treedepth=max_depth,
-                                     show_progress=True,
-                                     show_console=False)
+        self.stanfit_ = model.sample(
+            data=model_data,
+            chains=nchains,
+            iter_warmup=nwarmup,
+            iter_sampling=nsamples,
+            save_warmup=save_warmup,
+            adapt_delta=delta,
+            max_treedepth=max_depth,
+            show_progress=True,
+            show_console=False,
+        )
         self.results_ = self.stanfit_.draws_pd()
-        self.pi_hat = self.results_[[f'pi_hat[{d+1}]' for d in range(N)]].mean(axis=0).values
+        self.pi_hat = (
+            self.results_[[f"pi_hat[{d+1}]" for d in range(N)]].mean(axis=0).values
+        )
 
         return self
 
