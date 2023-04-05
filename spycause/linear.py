@@ -401,8 +401,7 @@ class Joint(RegressorMixin, LinearModel):
         simulation=False,
     ):
         """
-        Interference adjustment is going to be tricky here
-        Stan doesn't like polymorphism
+        Fits model
         """
 
         if len(X.shape) == 1:
