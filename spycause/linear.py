@@ -369,6 +369,14 @@ class CAR(RegressorMixin, LinearModel):
             rmtree(output_dir)
         return self
 
+    def predict(self):
+        """
+        Return posterior predictive.
+        """
+        check_is_fitted(self)
+
+        return self.results_.filter(regex=r"^y_pred", axis=1).median().values
+
     def waic(self):
         """
         Computes WAIC for the model.
