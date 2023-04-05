@@ -4,5 +4,5 @@
 
 ```{eval-rst}
 .. py:currentmodule:: spycause.diagnostics
-.. autodoc:: diagnostics
+.. autofunction:: diagnostics
 ```
