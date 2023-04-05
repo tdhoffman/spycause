@@ -15,7 +15,7 @@ All models are fitted in a Bayesian framework using `the Stan programming langua
    models.md
    diagnostics.md
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
 
 Next steps for implementations:
 * Spatial diff-in-diff

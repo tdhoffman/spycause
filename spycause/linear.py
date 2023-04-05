@@ -30,11 +30,8 @@ class BayesOLS(RegressorMixin, LinearModel):
         """
         Initialize model class for ordinary linear regression.
 
-        fit_intercept: bool, defaults to True
+        fit_intercept : bool, defaults to True
                        whether or not to use an intercept
-
-        :return: a configured model class
-        :rtype: `BayesOLS`
         """
 
         self.fit_intercept = fit_intercept
@@ -113,9 +110,8 @@ class BayesOLS(RegressorMixin, LinearModel):
         return az.waic(self.idata_)
 
     def diagnostics(self):
+        
         diagnostics(self, params=["beta", "tau", "sigma"])
-        # check_is_fitted(self)
-        # return self.stanfit_.diagnose()
 
 
 class ICAR(RegressorMixin, LinearModel):

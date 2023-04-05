@@ -202,8 +202,6 @@ class CARSimulator(Simulator):
         All the conf and interf parameters could be arrays of size D
         if different variables have different levels of confounding or interference.
 
-        Parameters
-        ----------
         treat         : float, default 0.5
                         treatment effect of Z on Y
         z_conf        : float, default 0.25

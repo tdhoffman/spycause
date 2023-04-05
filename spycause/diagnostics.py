@@ -12,6 +12,12 @@ def diagnostics(model, params=["beta", "tau", "sigma"]):
     Return some diagnostics about the posterior convergence.
     Based on https://rdrr.io/github/tomshafer/tshfr/src/R/stan-utils.R, which is
     in turn based on https://betanalpha.github.io/assets/case_studies/pystan_workflow.html.
+
+    model  : fitted model from this library
+             model object containing results for diagnostic computation
+    params : list, optional
+             list of strings specifying the parameters to compute 
+             diagnostics for
     """
 
     # Divergences
