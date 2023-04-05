@@ -15,7 +15,8 @@ from spopt.region import RandomRegion
 class Simulator:
     def __init__(self, Nlat, D, sp_confound=None, interference=None):
         """
-        Initialize self and parameters for simulation.
+        Template class for data simulation.
+        Provides initialization for input parameters and prescribes base functionality.
 
         Nlat         : int
                        side length of the lattice
@@ -40,9 +41,6 @@ class Simulator:
         self.N = Nlat ** 2
         self.D = D
         self.sp_confound = sp_confound
-
-        # if type(self.sp_confound) == weights.W:
-        # self.sp_confound = self.sp_confound.full()[0]
 
         # Parse interference options
         if type(interference) == str:
@@ -89,132 +87,28 @@ class Simulator:
             interference /= interference.sum(1, keepdims=1)
         self.interference = interference
 
-    def simulate(
-        self,
-        treat=0.5,
-        zconf=0.25,
-        sp_zconf=0.25,
-        yconf=0.5,
-        sp_yconf=0.25,
-        interf=0,
-        x_sd=1,
-        x_sp=0.9,
-        eps_sd=0.1,
-        ycar_sd=0.5,
-        zcar_sd=0.5,
-        **kwargs
-    ):
+    def simulate(self, **kwargs):
         """
         Simulate data based on some parameters.
-        All the conf and interf parameters could be arrays of size D
-        if different variables have different levels of confounding or interference.
 
-        Parameters
-        ----------
-        treat         : float, default 0.5
-                        treatment effect of Z on Y
-        zconf         : float, default 0.25
-                        effect of nonspatial confounding on Z
-        sp_zconf      : float, default 0.25
-                        effect of spatial confounding on Z
-        yconf         : float, default 0.5
-                        effect of nonspatial confounding on Y
-        sp_yconf      : float, default 0.25
-                        effect of spatial confounding on Y
-        interf        : float, default 0
-                        effect of interference on Y
-        x_sd          : float, default 1
-                        standard deviation of confounders
-        x_sp          : float, default 0.9
-                        spatial autocorrelation parameter
-        eps_sd        : float, default 0.1
-                        SD of nonspatial error term on Y
-        ycar_sd       : float, default 0.5
-                        SD of CAR term for confounding on Y
-        zcar_sd       : float, default 0.5
-                        SD of CAR term for confounding on Z
-
-        Returns
-        -------
-        X            : covariates (NxD)
-        Y            : outcomes (Nx1)
-        Z            : treatment (Nx1)
+        Subclass this method based on your desired functionality.
         """
 
-        if np.ndim(x_sd) == 0:
-            x_sd = np.repeat(x_sd, self.D)
-
-        # Confounders
-        X = np.random.uniform(low=-x_sd, high=x_sd, size=(self.N, self.D))
-
-        # Create Queen weights and give X a little autocorrelation
-        W = weights.lat2W(self.Nlat, self.Nlat, rook=False)
-        W.transform = "r"
-        W = W.full()[0]
-        X = np.dot(np.linalg.inv(np.eye(self.N) - x_sp * W), X)
-
-        # Set up CAR terms for spatial confounding on Y and Z
-        if self.sp_confound is not None:
-            self.sp_confound.transform = "r"
-
-        Z = np.random.binomial(1, self._create_Z(X, zconf, sp_zconf, **kwargs)).reshape(
-            -1, 1
-        )
-        Y = self._create_Y(X, Z, treat, yconf, sp_yconf, interf, eps_sd, **kwargs)
-
-        # Compute treated percentage
-        self.treated_pct = (Z == 1).sum() / self.N
-        return X, Y, Z
+        return ValueError("Subclass this method")
 
     def _create_Y(self, X, Z, treat, yconf, sp_yconf, interf, eps_sd, **kwargs):
         """
         Generate Y based on parameters, confounders X, and treatment Z.
         """
 
-        eps_y = np.random.normal(loc=0, scale=eps_sd, size=(self.N, 1))
-
-        if np.isscalar(yconf):
-            yconf *= np.ones((self.D, 1))
-        if np.isscalar(sp_yconf):
-            sp_yconf *= np.ones((self.D, 1))
-
-        Y = np.dot(X, yconf) + treat * Z + eps_y
-
-        rowsums = np.fromiter(self.sp_confound.cardinalities.values(), dtype=float)
-        cov_y = (ycar_sd ** 2) * sp.linalg.spsolve(
-            sp.diags(rowsums) - sp_yconf * self.sp_confound.sparse, np.eye(self.N)
-        )
-        car_y = np.linalg.cholesky(cov_y)
-
-        if self.sp_confound is not None:
-            Y += np.dot(np.dot(self.sp_confound, X), sp_yconf)
-
-        Y += np.dot(self.interference, Z) * interf
-
-        return Y
+        return ValueError("Subclass this method")
 
     def _create_Z(self, X, zconf, zcar_sd, sp_zconf, **kwargs):
         """
         Generate Z based on parameters and confounders X.
         """
 
-        prop_scores = np.abs(X.sum(1).reshape(-1, 1)) / np.abs(X.sum(1)).max()
-        prop_scores *= zconf  # regular confounding
-        # xvals = X.mean(1).reshape(-1, 1)  # not sure what i was thinking here
-        # xvals = (X - X.min()) / (X.max() - X.min())
-        # xvals = (X - X.mean(0)) / X.std(0)
-        # if self.sp_confound is not None:
-        # prop_scores += sp_zconf * np.dot(self.sp_confound, prop_scores)
-
-        # Set up spatial confounding
-        rowsums = np.fromiter(self.sp_confound.cardinalities.values(), dtype=float)
-        cov_z = (zcar_sd ** 2) * sp.linalg.spsolve(
-            sp.diags(rowsums) - sp_zconf * self.sp_confound.sparse, np.eye(self.N)
-        )
-        car_z = np.linalg.cholesky(cov_z)
-        prop_scores += np.dot(car_z, np.random.normal(size=(self.N, 1)))
-
-        return np.clip(prop_scores, 0, 1)
+        return ValueError("Subclass this method")
 
 
 class CARSimulator(Simulator):
@@ -239,6 +133,7 @@ class CARSimulator(Simulator):
         All the conf and interf parameters could be arrays of size D
         if different variables have different levels of confounding or interference.
 
+        **Parameters**
         treat         : float, default 0.5
                         treatment effect of Z on Y
         z_conf        : float, default 0.25
@@ -265,8 +160,7 @@ class CARSimulator(Simulator):
                         balancing factor that parametrizes the shared
                         spatial confounding between Y and Z
 
-        Returns
-        -------
+        **Returns**
         X            : covariates (NxD)
         Y            : outcomes (Nx1)
         Z            : treatment (Nx1)

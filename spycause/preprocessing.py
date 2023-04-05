@@ -3,7 +3,7 @@ __author__ = "Tyler D. Hoffman cause@tdhoffman.com"
 """
 Adjustments for spatial causal inference.
 CONTENTS:
-- Spatial interference adjustment for causal inference. 
+- Spatial interference adjustment for causal inference.
   Adds a lag of the treatment variables according to the specified interference matrix.
 - First stage propensity score estimator. Include the results of this in a second
   stage estimator for the outcome.
