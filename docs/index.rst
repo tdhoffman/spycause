@@ -13,7 +13,6 @@ All models are fitted in a Bayesian framework using `the Stan programming langua
 .. toctree::
    simulator.md
    models.md
-   diagnostics.md
    :maxdepth: 2
    :caption: Contents
 

@@ -1,7 +1,7 @@
 os.chdir('../..')
 
 import numpy as np
-import rundown as rd
+import spycause as spy
 import arviz as az
 from libpysal.weights import lat2W
 from sklearn.pipeline import Pipeline
@@ -16,19 +16,19 @@ beta = np.array([[0.5, -1]]).T
 tau = 2
 
 ## Generate data
-sim = rd.CARSimulator(Nlat, D)
+sim = spy.CARSimulator(Nlat, D)
 X, Y, Z = sim.simulate(treat=tau, y_conf=beta, x_sd=x_sd, y_sd=y_sd)
 
 ## Fit model with covariates
-model = rd.BayesOLS(fit_intercept=False)
+model = spy.BayesOLS(fit_intercept=False)
 model = model.fit(X, Y, Z, save_warmup=False)
 
 ## Add nonspatial prop score preprocessing
-propadj = rd.PropEst()
+propadj = spy.PropEst()
 pi_hat = propadj.fit_transform(X, Z)
 
 ## Fit model
-propmodel = rd.BayesOLS(fit_intercept=False)
+propmodel = spy.BayesOLS(fit_intercept=False)
 propmodel = propmodel.fit(pi_hat, Y, Z, nsamples=4000)
 
 ## Results
@@ -47,18 +47,18 @@ print(model.diagnostics())
 interf_eff = 10
 W = lat2W(Nlat, Nlat, rook=False)
 W.transform = 'r'
-intsim = rd.CARSimulator(Nlat, D, interference=W)
+intsim = spy.CARSimulator(Nlat, D, interference=W)
 X, Y, Z = intsim.simulate(treat=tau, y_conf=beta, x_sd=x_sd, y_sd=y_sd, interf=interf_eff)
 
 ## Interference adjustment
-# pipe = Pipeline([("interference", rd.InterferenceAdj()), ("model", rd.BayesOLS)])
-intadj = rd.InterferenceAdj(w=W)
+# pipe = Pipeline([("interference", spy.InterferenceAdj()), ("model", spy.BayesOLS)])
+intadj = spy.InterferenceAdj(w=W)
 Zint = intadj.transform(Z)
 
 # Interference is barely being estimated
-intmodel = rd.BayesOLS(fit_intercept=False)
+intmodel = spy.BayesOLS(fit_intercept=False)
 intmodel = intmodel.fit(X, Y, Zint, nsamples=3000, save_warmup=False)
-nointmodel = rd.BayesOLS(fit_intercept=False)
+nointmodel = spy.BayesOLS(fit_intercept=False)
 nointmodel = nointmodel.fit(X, Y, Z, nsamples=3000, save_warmup=False)
 
 ## Results
@@ -73,15 +73,15 @@ print(nointmodel.waic())
 
 
 ## Add nonspatial prop score preprocessing
-propadj = rd.PropEst()
+propadj = spy.PropEst()
 pi_hat = propadj.fit_transform(X, Z)
 
 ## Add interference adjustment
-intadj = rd.InterferenceAdj(w=W)
+intadj = spy.InterferenceAdj(w=W)
 Zint = intadj.transform(Z)
 
 ## Fit model
-propmodel = rd.BayesOLS(fit_intercept=False)
+propmodel = spy.BayesOLS(fit_intercept=False)
 propmodel = propmodel.fit(pi_hat, Y, Z, nsamples=4000)
 
 ## Results
